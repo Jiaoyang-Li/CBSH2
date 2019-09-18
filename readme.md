@@ -3,6 +3,9 @@
  
  The main goal is to improve heuristics for Conflict-Based Search by reasoning about pairwise dependencies between agents. Currently, the code is tested on Windows 10 Pro only.
  
+## License
+ CBSH2 is released under USC – Research License. See license.md for further details.
+ 
 ## Reference
  J. Li, A. Felner, E. Boyarski, H. Ma and S. Koenig. Improved Heuristics for Multi-Agent Path Finding with Conflict-Based Search. In Proceedings of the International Joint Conference on Artificial Intelligence (IJCAI), (in print), 2019.
 
