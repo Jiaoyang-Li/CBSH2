@@ -1,4 +1,4 @@
-project(PBS)
+project(CBSH2)
 
 cmake_minimum_required (VERSION 2.6)
 
@@ -19,5 +19,5 @@ find_package( Boost 1.49.0 REQUIRED COMPONENTS program_options system filesystem
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 
-add_executable(PBS ${SOURCES} )
-target_link_libraries(PBS ${Boost_LIBRARIES})
+add_executable(CBSH2 ${SOURCES} )
+target_link_libraries(CBSH2 ${Boost_LIBRARIES})
