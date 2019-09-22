@@ -27,12 +27,12 @@ bool MapLoader::addObstacle(int obstacle)
 			goal = start + 1;
 		else if (x[goal] < 0 || x[goal] >= rows || y[goal] < 0 || y[goal] >= cols || my_map[x[goal] * cols + y[goal]])
 			goal++;
-		else if (isConnected(x[start] * cols + y[start], x[goal] * cols + y[goal])) 
+		else if (isConnected(x[start] * cols + y[start], x[goal] * cols + y[goal])) // cannot find a path from start to goal 
 		{
 			start = goal;
 			goal++;
 		}
-		else // cannot find a path from start to goal 
+		else
 		{
 			my_map[obstacle] = false;
 			return false;

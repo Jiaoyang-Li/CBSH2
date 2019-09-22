@@ -20,7 +20,6 @@ public:
 	double runtime_updatecons = 0;
 
 	int max_num_of_mdds = 10000;
-	double wA = -1;
 
 	ICBSNode* dummy_start;
 	ICBSNode* goal_node = NULL;
@@ -52,7 +51,7 @@ public:
 
 	ICBSSearch(const MapLoader& ml, const AgentsLoader& al, double f_w, 
 		heuristics_type h_type, bool PC, bool rectangleReasoning,
-		bool EPEA4PAIR, int CGSolver, bool booking, int time_limit,bool bookingMDD, int screen, bool log);
+		int time_limit, int screen);
 	ICBSSearch(const MapLoader* ml, vector<SingleAgentICBS*>& search_engines, const vector<list<Constraint>>& constraints,
 		vector<vector<PathEntry>>& paths_found_initially, double f_w, int initial_h, 
 		heuristics_type h_type, bool PC, bool rectangleReasoning, int cost_upperbound, int time_limit, int screen);
@@ -74,25 +73,18 @@ private:
 	std::vector<MDDTable> mddTable;
 	int num_released_mdds = 0;
 	std::vector<std::vector<HTable>> hTable;
-	bool booking = false;
 	int bookingHitTimes = 0;
 	uint64_t bookingSearchtime = 0;
 
 	bool PC; // prioritize conflicts or not
 	bool rectangleReasoning = false; // using rectangle reasoning
-	bool EPEA4PAIR; // use EPEA* to solve 2-agent path finding for PAIR
-	int CGSolver; // solver for conflict graoh
-	bool log = false; // log the heurictis at different depths of the CT tree
-	bool bookingMDD = false; // book mdds
+
 	int screen;
-	//int nodesThreshold; // threshold of nodes that we run 2-agent searches. After the threshold, we only use cardinal conflicts for agents.
 	heuristics_type h_type;
 	const int time_limit;
-	//const int node_limit = INT_MAX;
 	double focal_w = 1.0;
 	const int cost_upperbound = INT_MAX;
 	
-	//uint64_t nodesHaveHVals = 0;
 
 	// Logs
 	vector<int> sum_h_vals; // sum of heuristics for the CT nodes at level t
@@ -131,7 +123,7 @@ private:
 
 	// add heuristics for the high-level search
 	int computeHeuristics(ICBSNode& curr);
-	bool buildConflictGraph(ICBSNode& node);
+	bool buildDependenceGraph(ICBSNode& node);
 	int getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & constraints, ICBSNode& node, bool cardinal, bool& hit);
 
 	// build MDD

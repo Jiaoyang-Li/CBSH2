@@ -9,7 +9,7 @@
 //typedef confilctGraph_t::vertex_descriptor vertex_t;
 //typedef confilctGraph_t::edge_descriptor edge_t;
 
-enum heuristics_type { NONE, CARDINAL, SEMI_PAIR, PAIR, MIX, STRATEGY_COUNT };
+enum heuristics_type { NONE, CG, DG, WDG, STRATEGY_COUNT };
 
 typedef std::tuple<int, int, int> Constraint;
 typedef std::tuple<int, int, int, int, int> Conflict;

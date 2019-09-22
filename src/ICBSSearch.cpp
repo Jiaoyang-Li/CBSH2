@@ -2,8 +2,6 @@
 #include <ctime>
 #include <iostream>
 #include <fstream>
-#include "epea_search.h"
-#include "ICTSSearch.h"
 #include "RectangleReasoning.h"
 
 #define MAX_RUNTIME4PAIR 6000
@@ -110,9 +108,9 @@ int ICBSSearch::computeHeuristics(ICBSNode& curr)
 	// create conflict graph
 	vector<int> CG(num_of_agents * num_of_agents, 0);
 	int num_of_CGedges = 0;
-	if (h_type == heuristics_type::SEMI_PAIR || h_type == heuristics_type::PAIR || h_type == heuristics_type::MIX)
+	if (h_type == heuristics_type::DG || h_type == heuristics_type::WDG)
 	{
-		bool succeed = buildConflictGraph(curr);
+		bool succeed = buildDependenceGraph(curr);
 		if (!succeed)
 			return -1;
 		for (int i = 0; i < num_of_agents; i++)
@@ -144,16 +142,9 @@ int ICBSSearch::computeHeuristics(ICBSNode& curr)
 
 	clock_t t = std::clock();
 	int rst;
-	if (h_type == heuristics_type::PAIR || h_type == heuristics_type::MIX)
+	if (h_type == heuristics_type::WDG)
 	{
-		if (CGSolver == 1) // greedy maxmial matching
-		{
-			rst = greedyMatching(CG, num_of_agents);
-		}
-		else // edge-weighted minimum vertex cover
-		{
-			rst = weightedVertexCover(CG, num_of_agents);
-		}		
+		rst = weightedVertexCover(CG, num_of_agents);		
 	}
 	else
 	{
@@ -165,15 +156,13 @@ int ICBSSearch::computeHeuristics(ICBSNode& curr)
 	}
 	mvc_runtime += std::clock() - t;
 
-	if(wA > 0)
-		rst = int(round(rst * wA));
 	return rst;
 }
 
 int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & constraints, ICBSNode& node, bool cardinal, bool& hit)
 {
 	HTableEntry newEntry(a1, a2, &node);
-	if (booking && h_type != heuristics_type::CARDINAL)
+	if (h_type != heuristics_type::CG)
 	{
 		time_t t = std::clock();
 		HTable::const_iterator got = hTable[a1][a2].find(newEntry);
@@ -202,7 +191,7 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 	int rst;
 	if (cardinal)
 		rst = 1;
-	else if (h_type == heuristics_type::SEMI_PAIR || h_type == heuristics_type::MIX)
+	else if (h_type == heuristics_type::DG || h_type == heuristics_type::WDG)
 	{
 		// get mdds
 		
@@ -266,7 +255,7 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 			vector<vector<PathEntry>> initial_paths(2);
 			initial_paths[0] = *paths[a1];
 			initial_paths[1] = *paths[a2];
-			ICBSSearch solver2(ml, engines, cons, initial_paths, 1.0, 0, heuristics_type::CARDINAL, true, rectangleReasoning, INT_MAX, std::min(1000, time_limit - runtime), 0);
+			ICBSSearch solver2(ml, engines, cons, initial_paths, 1.0, 0, heuristics_type::CG, true, rectangleReasoning, INT_MAX, std::min(1000, time_limit - runtime), 0);
 			solver2.runICBSSearch();
 			if ((rst ==0 && solver2.solution_cost > initial_paths.size() - initial_paths.size() + 2) &&
 				(rst == 1 && solver2.solution_cost == initial_paths.size() - initial_paths.size() + 2))
@@ -276,50 +265,7 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 			}
 		}
 	}
-	if (h_type == heuristics_type::PAIR && EPEA4PAIR)
-	{
-		vector<vector<int>> heuristics(2);
-		heuristics[0] = search_engines[a1]->my_heuristic;
-		heuristics[1] = search_engines[a2]->my_heuristic;
-		vector<int> starts(2);
-		starts[0] = paths[a1]->front().location;
-		starts[1] = paths[a2]->front().location;
-		vector<int> goals(2);
-		goals[0] = paths[a1]->back().location;
-		goals[1] = paths[a2]->back().location;
-		int cutoffTime = std::min(MAX_RUNTIME4PAIR, time_limit - runtime);
-		EPEASearch solver(cutoffTime, *ml, heuristics, starts, goals, cons, cost_shortestPath, scr);
-		solver.runEPEASearch();
-		if (solver.runtime >= cutoffTime) // time out
-			rst = max(0, solver.min_f - cost_shortestPath); // using lowverbound to approximate
-		else if (solver.solution_cost < 0) // no solution
-			rst = solver.solution_cost;
-		else
-		{
-			if (screen == 2)
-			{
-				//test
-				vector<SingleAgentICBS*> engines(2);
-				engines[0] = search_engines[a1];
-				engines[1] = search_engines[a2];
-				vector<vector<PathEntry>> initial_paths(2);
-				initial_paths[0] = *paths[a1];
-				initial_paths[1] = *paths[a2];
-				ICBSSearch solver2(ml, engines, cons, initial_paths, 1.0, 0, heuristics_type::CARDINAL, true, rectangleReasoning, INT_MAX, time_limit - runtime, 0);
-				solver2.runICBSSearch();
-				if (solver.solution_cost != solver2.solution_cost || solver.solution_cost < cost_shortestPath)
-				{
-					cout << "EPEA WRONG" << endl;
-					exit(10);
-				}
-			}
-
-			rst = solver.solution_cost - cost_shortestPath;
-		}
-
-	}
-	else if ((h_type == heuristics_type::PAIR && !EPEA4PAIR) ||
-		(h_type == heuristics_type::MIX && rst > 0))
+	if (h_type == heuristics_type::WDG && rst > 0)
 	{
 		vector<SingleAgentICBS*> engines(2);
 		engines[0] = search_engines[a1];
@@ -329,7 +275,7 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 		initial_paths[1] = *paths[a2];
 		int cutoffTime = std::min(MAX_RUNTIME4PAIR, time_limit - runtime);
 		int upperbound = initial_paths[0].size() + initial_paths[1].size() + 10;
-		ICBSSearch solver(ml, engines, cons, initial_paths, 1.0, max(rst, 0), heuristics_type::CARDINAL, true, rectangleReasoning, upperbound, cutoffTime, scr);
+		ICBSSearch solver(ml, engines, cons, initial_paths, 1.0, max(rst, 0), heuristics_type::CG, true, rectangleReasoning, upperbound, cutoffTime, scr);
 		solver.max_num_of_mdds = this->max_num_of_mdds;
 		solver.runICBSSearch();
 		if (solver.runtime >= cutoffTime) // time out
@@ -339,12 +285,11 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 		else
 			rst = solver.solution_cost - cost_shortestPath;
 	}
-	if (booking)
-		hTable[a1][a2][newEntry] = rst;
+	hTable[a1][a2][newEntry] = rst;
 	return rst;
 }
 
-bool ICBSSearch::buildConflictGraph(ICBSNode& node)
+bool ICBSSearch::buildDependenceGraph(ICBSNode& node)
 {
 	// extract all constraints
 	vector<list<Constraint>> constraints = initial_constraints;
@@ -376,7 +321,7 @@ bool ICBSSearch::buildConflictGraph(ICBSNode& node)
 		int a1 = min(get<0>(*conflict), get<1>(*conflict));
 		int a2 = max(get<0>(*conflict), get<1>(*conflict));
 		int idx = a1 * num_of_agents + a2;
-		if (h_type == heuristics_type::SEMI_PAIR)
+		if (h_type == heuristics_type::DG)
 		{
 			node.conflictGraph[idx] = 1;
 		}
@@ -985,7 +930,7 @@ bool ICBSSearch::generateChild(ICBSNode*  node, ICBSNode* parent)
 void ICBSSearch::copyConflictGraph(ICBSNode& child, const ICBSNode& parent)
 {
 	//copy conflict graph
-	if (h_type == heuristics_type::SEMI_PAIR || h_type == heuristics_type::PAIR || h_type == heuristics_type::MIX)
+	if (h_type == heuristics_type::DG || h_type == heuristics_type::WDG)
 	{
 		int a1 = child.agent_id; // the replaned agent
 		int a2 = (a1 == get<0>(*parent.conflict)) ? get<1>(*parent.conflict) : get<0>(*parent.conflict); // the other agent in the chosen conflict
@@ -1034,10 +979,6 @@ void ICBSSearch::updateFocalList()
 		if (screen == 3)
 		{
 			cout << focal_list.size() << endl;
-		}
-		if (log)
-		{
-			log_min_f.push_back(make_pair(min_f_val, HL_num_expanded));
 		}
 	}
 }
@@ -1103,7 +1044,7 @@ void ICBSSearch::saveResults(const std::string &fileName, const std::string &ins
 		not_cardinal_heuristic_num << "," << not_cardinal_heuristic_value << "," <<
 		bookingHitTimes << ", " << bookingSearchtime << "," << HL_num_heuristics << "," << 
 		build_mdds_runtime << "," <<
-		h_type << "," << PC <<  "," << EPEA4PAIR << "," <<  instanceName << endl;
+		h_type << "," << PC << "," <<  instanceName << endl;
 	stats.close();
 }
 
@@ -1134,33 +1075,18 @@ void ICBSSearch::printStrategy() const
 	{
 	case heuristics_type::NONE:
 		if(PC)
-			std::cout << "       ICBS: ";
+			std::cout << "    ICBS: ";
 		else
-			std::cout << "        CBS: ";
+			std::cout << "     CBS: ";
 		break;
-	case heuristics_type::CARDINAL:
-		if (PC)
-			std::cout << "ICBSH-cardi: ";
-		else
-		{
-			std::cout << "Wrong";
-			exit(10);
-		}
+	case heuristics_type::CG:
+		std::cout << " CBSH+CG: ";
 		break;
-	case heuristics_type::SEMI_PAIR:
-		if (PC)
-			std::cout << "ICBSH+semi-pairs: ";
-		else
-			std::cout << " CBSH+semi-pairs: ";
+	case heuristics_type::DG:
+		std::cout << " CBSH+DG: ";
 		break;
-	case heuristics_type::PAIR:
-		if (PC)
-			std::cout << "ICBSH+pairs: ";
-		else
-			std::cout << " CBSH+pairs: ";
-		break;
-	case heuristics_type::MIX:
-		std::cout << "  ICBSH+mix:";
+	case heuristics_type::WDG:
+		std::cout << "CBSH+WDG: ";
 		break;
 	default:
 		exit(10);
@@ -1252,24 +1178,6 @@ bool ICBSSearch::runICBSSearch()
 			curr->h_val = std::max(h, curr->h_val); // use consistent h values
 			curr->f_val = curr->g_val + curr->h_val;
 
-			if (log) // log the heuristics
-			{
-				if (curr->depth == num_CTnodes.size())
-				{
-					sum_h_vals.push_back(curr->h_val);
-					sum_f_vals.push_back(curr->f_val);
-					num_CTnodes.push_back(1);
-					sum_runtime.push_back(runtime_h);
-				}
-				else // curr->depth < sum_heuristics.size()
-				{
-					sum_h_vals[curr->depth] += curr->h_val;
-					sum_f_vals[curr->depth] += curr->f_val;
-					num_CTnodes[curr->depth] += 1;
-					sum_runtime[curr->depth] += runtime_h;
-				}
-			}
-			
 			if(screen == 2)
 				curr->printConflictGraph();
 
@@ -1465,11 +1373,11 @@ ICBSSearch::ICBSSearch(const MapLoader* ml, vector<SingleAgentICBS*>& search_eng
 }
 
 ICBSSearch::ICBSSearch(const MapLoader& ml, const AgentsLoader& al, double f_w, heuristics_type h_type,
-	bool PC, bool rectangleReasoning, bool EPEA4PAIR, int CGSolver, bool booking,
-	int time_limit, bool bookingMDD, int screen, bool log):
-	focal_w(f_w), time_limit(time_limit), h_type(h_type), PC(PC), screen(screen), CGSolver(CGSolver),
-	rectangleReasoning(rectangleReasoning), ml(&ml), EPEA4PAIR(EPEA4PAIR), booking(booking), bookingMDD(bookingMDD),
-	num_of_agents(al.num_of_agents), log(log)
+	bool PC, bool rectangleReasoning,
+	int time_limit, int screen):
+	focal_w(f_w), time_limit(time_limit), h_type(h_type), PC(PC), screen(screen),
+	rectangleReasoning(rectangleReasoning), ml(&ml),
+	num_of_agents(al.num_of_agents)
 {
 	initial_constraints.resize(num_of_agents);
 
@@ -1530,9 +1438,9 @@ ICBSSearch::ICBSSearch(const MapLoader& ml, const AgentsLoader& al, double f_w, 
 
 	min_f_val = dummy_start->f_val;
 	focal_list_threshold = min_f_val * focal_w;
-	//if(h_type == heuristics_type::SEMI_PAIR || h_type == heuristics_type::PAIR)
+	//if(h_type == heuristics_type::DG || h_type == heuristics_type::PAIR)
 	//	dummy_start->conflictGraph.resize(num_of_agents * num_of_agents, -1);
-	/*if (h_type == heuristics_type::SEMI_PAIR && !EPEA4PAIR)
+	/*if (h_type == heuristics_type::DG && !EPEA4PAIR)
 		mdds_initially.resize(num_of_agents);*/
 
 	if (screen >= 2) // print start and goals
@@ -1540,17 +1448,13 @@ ICBSSearch::ICBSSearch(const MapLoader& ml, const AgentsLoader& al, double f_w, 
 		al.printAgentsInitGoal();
 	}
 
-	if (booking)
+	hTable.resize(num_of_agents);
+	for (int i = 0; i < num_of_agents; i++)
 	{
-		hTable.resize(num_of_agents);
-		for (int i = 0; i < num_of_agents; i++)
-		{
-			hTable[i].resize(num_of_agents);
-		}
+		hTable[i].resize(num_of_agents);
 	}
 
-	if ((h_type == heuristics_type::SEMI_PAIR && !EPEA4PAIR) || rectangleReasoning
-		|| bookingMDD || h_type == heuristics_type::MIX)
+	if (rectangleReasoning || h_type == heuristics_type::DG || h_type == heuristics_type::WDG)
 		mddTable.resize(num_of_agents);
 }
 
@@ -1597,50 +1501,6 @@ void ICBSSearch::clearSearchEngines()
 {
 	for (size_t i = 0; i < search_engines.size(); i++)
 		delete (search_engines[i]);
-}
-
-
-void ICBSSearch::saveLogs(const std::string &fileName) const
-{
-	ofstream stats;
-	stats.open(fileName, ios::app);
-	// average h and f values at different depths of the CT tree
-	stats << "average" << std::endl;
-	for (int i = 0; i < num_CTnodes.size(); i++)
-	{
-		stats << i << "," << num_CTnodes[i] << "," << 
-			sum_h_vals[i] << "," << sum_f_vals[i] << "," <<
-			sum_runtime[i] << "," << std::endl;
-	}
-
-	// heuristics for the CT nodes on the path to the optimal solution
-	vector<int> solution_h_vals(goal_node->depth + 1);
-	// f values for the CT nodes on the path to the optimal solution
-	vector<int> solution_f_vals(goal_node->depth + 1);
-	ICBSNode* curr = goal_node;
-	for (int i = goal_node->depth; i >= 0; i--)
-	{
-		solution_h_vals[i] = curr->h_val;
-		solution_f_vals[i] = curr->f_val;
-		curr = curr->parent;
-	}
-
-	// h and f values on the optimal path 
-	stats << "optimal" << std::endl;
-	for (int i = 0; i <= goal_node->depth; i++)
-	{
-		stats << i << "," << solution_h_vals[i] << "," <<
-			solution_f_vals[i] << "," << std::endl;
-	}
-
-	// changes of the lowerbound
-	stats << "min" << std::endl <<
-		dummy_start->f_val << ",0" << std::endl;
-	for (auto i : log_min_f)
-	{
-		stats << i.first << "," << i.second << std::endl;
-	}
-	stats.close();
 }
 
 
