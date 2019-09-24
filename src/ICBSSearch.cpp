@@ -764,7 +764,7 @@ void ICBSSearch::removeLowPriorityConflicts(std::list<std::shared_ptr<Conflict>>
 	if(conflicts.empty())
 		return;
 	list<pair<int, int>> got;
-	for (std::list<std::shared_ptr<Conflict>>::iterator p1 = conflicts.begin(); p1 != conflicts.end(); ++p1)
+	for (std::list<std::shared_ptr<Conflict>>::iterator p1 = conflicts.begin(); p1 != conflicts.end();)
 	{
 		int a1 = get<0>(**p1), a2 = get<1>(**p1);
 		pair<int, int> ag(min(a1, a2), max(a1, a2));
@@ -775,7 +775,6 @@ void ICBSSearch::removeLowPriorityConflicts(std::list<std::shared_ptr<Conflict>>
 			{
 				found = true;
 				p1 = conflicts.erase(p1);
-				--p1;
 				break;
 			}
 		}
@@ -784,13 +783,13 @@ void ICBSSearch::removeLowPriorityConflicts(std::list<std::shared_ptr<Conflict>>
 
 		std::list<std::shared_ptr<Conflict>>::iterator p2 = p1;		
 		p2++;
+		bool keepP1 = true;
 		while (p2 != conflicts.end())
 		{
 			if ((get<0>(**p2) == a1 && get<1>(**p2) == a2) || (get<1>(**p2) == a1 && get<0>(**p2) == a2))
 			{
-				bool keepP1 = true;
 				if (max(get<4>(**p1), get<4>(**p2)) >= min(paths[a1]->size(), paths[a2]->size()))
-					keepP1 = get<4>(**p1) >= get<4>(**p2);
+					keepP1 = get<4>(**p1) <= get<4>(**p2);
 				else
 				{
 					int time1, time2;
@@ -802,20 +801,21 @@ void ICBSSearch::removeLowPriorityConflicts(std::list<std::shared_ptr<Conflict>>
 						time2 = getRectangleTime(**p2, paths, num_col);
 					else // vertex/edge conflict
 						time2 = std::get<4>(**p2);
-					keepP1 = time1 >= time2;
+					keepP1 = time1 <= time2;
 				}
 				if (keepP1) //delete p2
 					conflicts.erase(p2);
 				else //delete p1
 				{
 					p1 = conflicts.erase(p1);
-					--p1;
+					break;
 				}
-				break;
 			}
 			else
 				++p2;
 		}
+		if (keepP1)
+			++p1;
 	}
 
 	for (auto conflict : conflicts)
