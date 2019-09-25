@@ -1310,13 +1310,17 @@ void ICBSSearch::releaseMDDMemory(int id)
 		if (mdd.second->levels.size() < minLength)
 			minLength = mdd.second->levels.size();
 	}
-	for (MDDTable::iterator mdd = mddTable[id].begin(); mdd != mddTable[id].end(); ++mdd)
+	for (MDDTable::iterator mdd = mddTable[id].begin(); mdd != mddTable[id].end();)
 	{
 		if (mdd->second->levels.size() == minLength)
 		{
 			delete mdd->second;
 			mdd = mddTable[id].erase(mdd);
 			num_released_mdds++;
+		}
+		else
+		{
+			mdd++;
 		}
 	}
 	return;
