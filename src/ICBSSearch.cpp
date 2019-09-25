@@ -96,7 +96,7 @@ int ICBSSearch::collectConstraints(ICBSNode* curr, int agent_id, std::vector <st
 		else
 			(cons_vec)[get<2>(*it)].push_back(make_pair(get<0>(*it), get<1>(*it)));
 	}
-	runtime_updatecons += std::clock() - t1;
+	runtime_updatecons += (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
 	return minLength;
 
 }
@@ -154,7 +154,7 @@ int ICBSSearch::computeHeuristics(ICBSNode& curr)
 		else
 			rst = minimumVertexCover(CG, curr.parent->h_val, num_of_agents, num_of_CGedges);		
 	}
-	mvc_runtime += std::clock() - t;
+	mvc_runtime += (std::clock() - t) * 1000.0 / CLOCKS_PER_SEC;
 
 	return rst;
 }
@@ -166,7 +166,7 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 	{
 		time_t t = std::clock();
 		HTable::const_iterator got = hTable[a1][a2].find(newEntry);
-		bookingSearchtime += std::clock() - t;
+		bookingSearchtime += (std::clock() - t) * 1000.0/ CLOCKS_PER_SEC;
 
 		if (got != hTable[a1][a2].end())
 		{
@@ -181,7 +181,7 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 	cons[0] = constraints[a1];
 	cons[1] = constraints[a2];
 	int cost_shortestPath = paths[a1]->size() + paths[a2]->size() - 2;
-	runtime = (std::clock() - start);
+	runtime = (std::clock() - start) * 1000.0 / CLOCKS_PER_SEC;
 	int scr = 0;
 	if(screen == 2)
 	{
@@ -330,7 +330,7 @@ bool ICBSSearch::buildDependenceGraph(ICBSNode& node)
 			time_t t = std::clock();
 			bool hit;
 			int w = getEdgeWeight(a1, a2, constraints, node, true, hit);
-			cardinal_pair_runtime += std::clock() - t;
+			cardinal_pair_runtime += (std::clock() - t) * 1000.0 / CLOCKS_PER_SEC;
 			if(!hit)
 				cardinal_pair_num ++;
 			if (w < 0) // no solution
@@ -354,7 +354,7 @@ bool ICBSSearch::buildDependenceGraph(ICBSNode& node)
 			time_t t = std::clock();
 			bool hit;
 			int w = getEdgeWeight(a1, a2, constraints, node, false, hit);
-			not_cardinal_pair_runtime += std::clock() - t;
+			not_cardinal_pair_runtime += (std::clock() - t) * 1000.0 / CLOCKS_PER_SEC;
 			if (!hit)
 				not_cardinal_pair_num++;
 			if (w < 0) //no solution
@@ -377,7 +377,7 @@ bool ICBSSearch::buildDependenceGraph(ICBSNode& node)
 			time_t t = std::clock();
 			bool hit;
 			int w = getEdgeWeight(a1, a2, constraints, node, false, hit);
-			not_cardinal_pair_runtime += std::clock() - t;
+			not_cardinal_pair_runtime += (std::clock() - t) * 1000.0 / CLOCKS_PER_SEC;
 			if (!hit)
 				not_cardinal_pair_num++;
 			if (w < 0) // no solution
@@ -534,7 +534,7 @@ MDD * ICBSSearch::buildMDD(ICBSNode& node, int id)
 	collectConstraints(&node, id, cons_vec);
 	time_t t = std::clock();
 	mdd->buildMDD(cons_vec,  paths[id]->size(), *search_engines[id]);
-	build_mdds_runtime += std::clock() - t;
+	build_mdds_runtime += (std::clock() - t) * 1000.0 / CLOCKS_PER_SEC;
 	if (!mddTable.empty())
 	{
 		ConstraintsHasher c(id, &node);
@@ -879,7 +879,7 @@ bool ICBSSearch::generateChild(ICBSNode*  node, ICBSNode* parent)
 		return false;
 
 	
-	runtime_lowlevel += std::clock() - t1;
+	runtime_lowlevel += (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
 	
 	//Estimate h value
 	node->h_val = 0;
@@ -909,7 +909,7 @@ bool ICBSSearch::generateChild(ICBSNode*  node, ICBSNode* parent)
 
 	t1 = std::clock();
 	findConflicts(*node);
-	runtime_conflictdetection += std::clock() - t1;
+	runtime_conflictdetection += (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
 	copyConflictGraph(*node, *node->parent);
 
 	// update handles
@@ -1118,7 +1118,7 @@ bool ICBSSearch::runICBSSearch()
 			solution_found = false;
 			break;
 		}
-		runtime = (std::clock() - start);
+		runtime = (std::clock() - start) * 1000.0 / CLOCKS_PER_SEC;
 		if (runtime > time_limit)
 		{  // timeout
 			solution_cost = -1;
@@ -1131,7 +1131,7 @@ bool ICBSSearch::runICBSSearch()
 		// takes the paths_found_initially and UPDATE all constrained paths found for agents from curr to dummy_start (and lower-bounds)
 		t1 = std::clock();
 		updatePaths(curr);
-		runtime_updatepaths += std::clock() - t1;
+		runtime_updatepaths += (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
 
 		if (curr->num_of_collisions == 0) //no conflicts
 		{// found a solution (and finish the while look)
@@ -1146,7 +1146,7 @@ bool ICBSSearch::runICBSSearch()
 			if(PC) // priortize conflicts
 				classifyConflicts(*curr);
 			chooseConflict(*curr);
-			runtime_conflictdetection += std::clock() - t1;
+			runtime_conflictdetection += (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
 		}
 		else if(curr->conflict == NULL) //use h value, and h value has not been computed yet
 		{
@@ -1162,11 +1162,11 @@ bool ICBSSearch::runICBSSearch()
 			t1 = std::clock();
 			if (PC) // priortize conflicts
 				classifyConflicts(*curr);
-			runtime_conflictdetection += std::clock() - t1;
+			runtime_conflictdetection += (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
 
 			t1 = std::clock();
 			int h = computeHeuristics(*curr);	
-			int runtime_h = std::clock() - t1;
+			int runtime_h = (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
 			runtime_computeh += runtime_h;
 			HL_num_heuristics++;
 
@@ -1295,7 +1295,7 @@ bool ICBSSearch::runICBSSearch()
 	}  // end of while loop
 
 
-	runtime = (std::clock() - start);
+	runtime = (std::clock() - start) * 1000.0 / CLOCKS_PER_SEC;
 	if (solution_found && !validateSolution())
 	{
 		std::cout << "Solution invalid!!!" << std::endl;
