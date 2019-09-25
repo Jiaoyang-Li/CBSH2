@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include "common.h"
 
 int minimumVertexCover(const std::vector<int>& CG, int old_mvc, int cols, int num_of_edges);
 

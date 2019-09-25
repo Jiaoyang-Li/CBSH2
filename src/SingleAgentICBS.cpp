@@ -56,23 +56,24 @@ inline bool SingleAgentICBS::isConstrained(int curr_id, int next_id, int next_ti
 
 
 
-int SingleAgentICBS::numOfConflictsForStep(int curr_id, int next_id, int next_timestep, const bool* res_table, int max_plan_len) {
+int SingleAgentICBS::numOfConflictsForStep(int curr_id, int next_id, int next_timestep, const CAT& cat) 
+{
 	int retVal = 0;
-	if (next_timestep >= max_plan_len) 
+	if (next_timestep >= cat.size()) 
 	{
 		// check vertex constraints (being at an agent's goal when he stays there because he is done planning)
-		if (res_table[next_id + (max_plan_len - 1)*map_size] == true)
+		if (cat.back().at(next_id) == true)
 			retVal++;
 		// Note -- there cannot be edge conflicts when other agents are done moving
 	}
 	else 
 	{
 		// check vertex constraints (being in next_id at next_timestep is disallowed)
-		if (res_table[next_id + next_timestep*map_size] == true)
+		if (cat[next_timestep][next_id] == true)
 			retVal++;
 		// check edge constraints (the move from curr_id to next_id at next_timestep-1 is disallowed)
 		// which means that res_table is occupied with another agent for [curr_id,next_timestep] and [next_id,next_timestep-1]
-		if (res_table[curr_id + next_timestep*map_size] && res_table[next_id + (next_timestep - 1)*map_size])
+		if (cat[next_timestep][curr_id] && cat[next_timestep - 1][next_id])
 			retVal++;
 	}
 	return retVal;
@@ -91,7 +92,7 @@ bool SingleAgentICBS::validMove(int curr, int next) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // return true if a path found (and updates vector<int> path) or false if no path exists
-bool SingleAgentICBS::findPath(std::vector<PathEntry> &path, const std::vector < std::list< std::pair<int, int> > >& constraints, const bool* res_table, size_t max_plan_len, int minLength) 
+bool SingleAgentICBS::findPath(std::vector<PathEntry> &path, const std::vector < std::list< std::pair<int, int> > >& constraints, const CAT& cat, int minLength)
 {
 	if (!constraints.empty())
 	{
@@ -148,8 +149,8 @@ bool SingleAgentICBS::findPath(std::vector<PathEntry> &path, const std::vector <
 				int next_g_val = curr->g_val + 1;
 				int next_h_val = my_heuristic[next_id];
 				int next_internal_conflicts = 0;
-				if (max_plan_len > 0)  // check if the reservation table is not empty (that is tha max_length of any other agent's plan is > 0)
-					next_internal_conflicts = curr->num_internal_conf + numOfConflictsForStep(curr->loc, next_id, next_timestep, res_table, max_plan_len);
+				if (!cat.empty())  // check if the conflict avoidance table is not empty
+					next_internal_conflicts = curr->num_internal_conf + numOfConflictsForStep(curr->loc, next_id, next_timestep, cat);
 				
 				// generate (maybe temporary) node
 				LLNode* next = new LLNode(next_id, next_g_val, next_h_val,	curr, next_timestep, next_internal_conflicts, false);

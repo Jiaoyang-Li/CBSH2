@@ -52,7 +52,7 @@ public:
 
 	// Return the number of conflicts between the known_paths' (by looking at the reservation table) for the move [curr_id,next_id].
 	// Returns 0 if no conflict, 1 for vertex or edge conflict, 2 for both.
-	int numOfConflictsForStep(int curr_id, int next_id, int next_timestep, const bool* res_table, int max_plan_len);
+	int numOfConflictsForStep(int curr_id, int next_id, int next_timestep, const CAT& cat);
 
 	// find path by time-space A* search
 	// Returns true if a collision free path found  while
@@ -60,7 +60,7 @@ public:
 	// lowerbound is the lowerbound of the length of the path
 	// max_plan_len used to compute the size of res_table
 	bool findPath(std::vector<PathEntry> &path, const std::vector < std::list< std::pair<int, int> > >& constraints, 
-		const bool* res_table, size_t max_plan_len, int lowerbound);
+		const CAT& cat, int lowerbound);
 
 	bool validMove(int curr, int next) const; // whetehr curr->next is a valid move
 

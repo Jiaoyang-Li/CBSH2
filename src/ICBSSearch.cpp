@@ -833,14 +833,12 @@ bool ICBSSearch::findPathForSingleAgent(ICBSNode*  node, int ag, int lowerbound)
 	int minLength = collectConstraints(curr, ag, cons_vec);
 	
 	// build reservation table
-	size_t max_plan_len = node->makespan + 1;
-	bool* res_table = new bool[search_engines[ag]->map_size * max_plan_len]();  // initialized to false
-	updateReservationTable(res_table, ag, *node);
+	CAT cat(node->makespan + 1);  // initialized to false
+	updateReservationTable(cat, ag, *node);
 	// find a path w.r.t cons_vec (and prioretize by res_table).
-	bool foundSol = search_engines[ag]->findPath(node->path, cons_vec, res_table, max_plan_len, std::max(minLength, lowerbound));
+	bool foundSol = search_engines[ag]->findPath(node->path, cons_vec, cat, std::max(minLength, lowerbound));
 	LL_num_expanded += search_engines[ag]->num_expanded;
 	LL_num_generated += search_engines[ag]->num_generated;
-	delete[] res_table;
 	//delete cons_vec;
 	if (foundSol)
 	{
@@ -983,7 +981,7 @@ void ICBSSearch::updateFocalList()
 	}
 }
 
-void ICBSSearch::updateReservationTable(bool* res_table, int exclude_agent, const ICBSNode &node) {
+void ICBSSearch::updateReservationTable(CAT& cat, int exclude_agent, const ICBSNode &node) {
 	for (int ag = 0; ag < num_of_agents; ag++) 
 	{
 		if (ag != exclude_agent && paths[ag] != NULL) 
@@ -995,7 +993,7 @@ void ICBSSearch::updateReservationTable(bool* res_table, int exclude_agent, cons
 					id = paths[ag]->at(paths[ag]->size() - 1).location;
 				else// otherwise, return its location for that timestep
 					id = paths[ag]->at(timestep).location;
-				res_table[timestep * search_engines[0]->map_size + id] = true;
+				cat[timestep][id] = true;
 			}
 		}
 	}
@@ -1406,10 +1404,10 @@ ICBSSearch::ICBSSearch(const MapLoader& ml, const AgentsLoader& al, double f_w, 
 	vector < list< pair<int, int> > > cons_vec;
 	for (int i = 0; i < num_of_agents; i++) 
 	{
-		bool* res_table = new bool[ml.rows*ml.cols * (dummy_start->makespan + 1)]();  // initialized to false
-		updateReservationTable(res_table, i, *dummy_start);
+		CAT cat(dummy_start->makespan + 1);  // initialized to false
+		updateReservationTable(cat, i, *dummy_start);
 
-		if (search_engines[i]->findPath(paths_found_initially[i], cons_vec, res_table, dummy_start->makespan + 1, 0) == false)
+		if (search_engines[i]->findPath(paths_found_initially[i], cons_vec, cat, 0) == false)
 			cout << "NO SOLUTION EXISTS";
 
 		paths[i] = &paths_found_initially[i];
@@ -1417,8 +1415,6 @@ ICBSSearch::ICBSSearch(const MapLoader& ml, const AgentsLoader& al, double f_w, 
 
 		LL_num_expanded += search_engines[i]->num_expanded;
 		LL_num_generated += search_engines[i]->num_generated;
-		delete[] res_table;
-
 	}
 
 

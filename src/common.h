@@ -11,6 +11,7 @@ using boost::heap::fibonacci_heap;
 using boost::heap::compare;
 using boost::unordered_map;
 using boost::unordered_set;
+using std::vector;
 
 //#include <boost/graph/adjacency_list.hpp>
 //typedef boost::adjacency_list_traits<int, int, boost::undirectedS > confilctGraph_t;
@@ -21,7 +22,7 @@ enum heuristics_type { NONE, CG, DG, WDG, STRATEGY_COUNT };
 
 typedef std::tuple<int, int, int> Constraint;
 typedef std::tuple<int, int, int, int, int> Conflict;
-
+typedef vector< vector< bool > > CAT; // conflict avoidance table
 
 struct PathEntry
 {
