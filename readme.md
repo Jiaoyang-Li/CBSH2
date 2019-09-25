@@ -12,8 +12,4 @@
  Jiaoyang Li, Eli Boyarski, Ariel Felner, Hang Ma and Sven Koenig. Improved Heuristics for Multi-Agent Path Finding with Conflict-Based Search \[Extended Abstract\]. In Proceedings of the Symposium on Combinatorial Search (SoCS), pages 182-183, 2019.
 
 ## Dependencies
-The code requires the following external libraries:
-
-* BOOST (https://www.boost.org/)
-
-* sparsehash (https://github.com/sparsehash/sparsehash)
+The code requires the external library BOOST (https://www.boost.org/).
