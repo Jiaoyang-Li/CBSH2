@@ -72,7 +72,7 @@ int SingleAgentICBS::numOfConflictsForStep(int curr_id, int next_id, int next_ti
 	else 
 	{
 		// check vertex constraints (being in next_id at next_timestep is disallowed)
-		auto& it = cat[next_timestep].find(next_id);
+		auto it = cat[next_timestep].find(next_id);
 		if (it != cat[next_timestep].end())
 			retVal++;
 		// check edge constraints (the move from curr_id to next_id at next_timestep-1 is disallowed)
