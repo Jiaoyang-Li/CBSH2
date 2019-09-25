@@ -112,7 +112,7 @@ bool SingleAgentICBS::findPath(std::vector<PathEntry> &path, const std::vector <
 	start->open_handle = open_list.push(start);
 	start->focal_handle = focal_list.push(start);
 	start->in_openlist = true;
-	allNodes_table[start] = start;
+	allNodes_table.insert(start);
 	min_f_val = start->getFVal();
 	int lower_bound = std::max(minLength,  min_f_val);
 
@@ -163,12 +163,12 @@ bool SingleAgentICBS::findPath(std::vector<PathEntry> &path, const std::vector <
 					num_generated++;
 					if (next->getFVal() <= lower_bound)
 						next->focal_handle = focal_list.push(next);
-					allNodes_table[next] = next;
+					allNodes_table.insert(next);
 				}
 				else
 				{  // update existing node's if needed (only in the open_list)
 					delete(next);  // not needed anymore -- we already generated it before
-					LLNode* existing_next = (*it).second;
+					LLNode* existing_next = *it;
 
 					if (existing_next->in_openlist == true)
 					{  // if its in the open list
@@ -252,26 +252,15 @@ inline void SingleAgentICBS::releaseClosedListNodes(hashtable_t* allNodes_table)
 {
 	hashtable_t::iterator it;
 	for (it = allNodes_table->begin(); it != allNodes_table->end(); it++) 
-		delete ((*it).second);  
+		delete *it;  
 }
 
 SingleAgentICBS::SingleAgentICBS(int start_location, int goal_location,
 	const bool* my_map, int map_size, const int* moves_offset, int num_col):
 	moves_offset(moves_offset), my_map(my_map), start_location(start_location),
 	goal_location(goal_location), map_size(map_size), num_col(num_col)
-{
-	// initialize allNodes_table (hash table)
-	empty_node = new LLNode();
-	empty_node->loc = -1;
-	deleted_node = new LLNode();
-	deleted_node->loc = -2;
-	allNodes_table.set_empty_key(empty_node);
-	allNodes_table.set_deleted_key(deleted_node);
-}
+{}
 
 
 SingleAgentICBS::~SingleAgentICBS()
-{
-	delete (empty_node);
-	delete (deleted_node);
-}
+{}

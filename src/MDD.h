@@ -1,9 +1,8 @@
 #pragma once
-#include <list>
-#include <vector>
+
 #include "ICBSNode.h"
 #include "SingleAgentICBS.h"
-#include <set>
+
 
 class MDDNode
 {
@@ -65,58 +64,63 @@ struct ConstraintsHasher // Hash a CT node by constraints on one agent
 	ConstraintsHasher() {};
 	ConstraintsHasher(int a, const ICBSNode* n) : a(a), n(n) {};
 
-	bool operator==(const ConstraintsHasher& other) const
+	struct EqNode
 	{
-		std::set<Constraint> cons1, cons2;
-		const ICBSNode* curr = n;
-		while (curr->parent != NULL)
+		bool operator() (const ConstraintsHasher& c1, const ConstraintsHasher& c2) const
 		{
-			if (curr->agent_id == a)
-				for (auto con : curr->constraints)
-					cons1.insert(con);
-			curr = curr->parent;
-		}
-		curr = other.n;
-		while (curr->parent != NULL)
-		{
-			if (curr->agent_id == a)
-				for (auto con : curr->constraints)
-					cons2.insert(con);
-			curr = curr->parent;
-		}
-		if (cons1.size() != cons2.size())
-			return false;
-
-		if (!equal(cons1.begin(), cons1.end(), cons2.begin()))
-			return false;
-		else
-			return true;
-	}
-};
-
-template <>
-struct std::hash<ConstraintsHasher>
-{
-	std::size_t operator()(const ConstraintsHasher& entry) const
-	{
-		const ICBSNode* curr = entry.n;
-		size_t cons_hash = 0;
-		while (curr->parent != NULL)
-		{
-			if (curr->agent_id == entry.a)
+			std::set<Constraint> cons1, cons2;
+			const ICBSNode* curr = c1.n;
+			while (curr->parent != NULL)
 			{
-				for (auto con : curr->constraints)
-				{
-					cons_hash += 3 * std::hash<int>()(std::get<0>(con)) + 5 * std::hash<int>()(std::get<1>(con)) + 7 * std::hash<int>()(std::get<2>(con));
-				}
+				if (curr->agent_id == c1.a)
+					for (auto con : curr->constraints)
+						cons1.insert(con);
+				curr = curr->parent;
 			}
-			curr = curr->parent;
+			curr = c2.n;
+			while (curr->parent != NULL)
+			{
+				if (curr->agent_id == c1.a)
+					for (auto con : curr->constraints)
+						cons2.insert(con);
+				curr = curr->parent;
+			}
+			if (cons1.size() != cons2.size())
+				return false;
+
+			if (!equal(cons1.begin(), cons1.end(), cons2.begin()))
+				return false;
+			else
+				return true;
 		}
-		return (cons_hash << 1);
-	}
+	};
+
+	struct Hasher
+	{
+		std::size_t operator()(const ConstraintsHasher& entry) const
+		{
+			const ICBSNode* curr = entry.n;
+			size_t cons_hash = 0;
+			while (curr->parent != NULL)
+			{
+				if (curr->agent_id == entry.a)
+				{
+					for (auto con : curr->constraints)
+					{
+						cons_hash += 3 * std::hash<int>()(std::get<0>(con)) + 5 * std::hash<int>()(std::get<1>(con)) + 7 * std::hash<int>()(std::get<2>(con));
+					}
+				}
+				curr = curr->parent;
+			}
+			return (cons_hash << 1);
+		}
+	};
 };
 
-typedef std::unordered_map<ConstraintsHasher, MDD*> MDDTable;
+
+
+
+typedef unordered_map<ConstraintsHasher, MDD*, ConstraintsHasher::Hasher, ConstraintsHasher::EqNode> MDDTable;
 
 
 class SyncMDDNode

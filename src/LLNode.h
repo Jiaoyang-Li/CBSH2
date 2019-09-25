@@ -66,7 +66,7 @@ public:
 	inline double getFVal() const { return g_val + h_val; }
 	~LLNode(){}
 
-	// The following is used by googledensehash for checking whether two nodes are equal
+	// The following is used for checking whether two nodes are equal
 	// we say that two nodes, s1 and s2, are equal if
 	// both are non-NULL and agree on the id and timestep
 	struct eqnode 
@@ -79,7 +79,7 @@ public:
 		}
 	};
 
-	// The following is used by googledensehash for generating the hash value of a nodes
+	// The following is used by for generating the hash value of a nodes
 	struct NodeHasher 
 	{
 		std::size_t operator()(const LLNode* n) const 

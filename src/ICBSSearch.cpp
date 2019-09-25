@@ -117,7 +117,7 @@ int ICBSSearch::computeHeuristics(ICBSNode& curr)
 		{
 			for (int j = i + 1; j < num_of_agents; j++)
 			{
-				std::unordered_map<int, int>::const_iterator got = curr.conflictGraph.find(i * num_of_agents + j);
+				boost::unordered_map<int, int>::const_iterator got = curr.conflictGraph.find(i * num_of_agents + j);
 				if (got != curr.conflictGraph.end() && got->second > 0)
 				{
 					CG[i * num_of_agents + j] = got->second;
@@ -893,7 +893,7 @@ bool ICBSSearch::generateChild(ICBSNode*  node, ICBSNode* parent)
 	else
 	{
 		int maxWeight = 0;
-		std::unordered_map<int, int>::iterator got;
+		boost::unordered_map<int, int>::iterator got;
 		for (auto e : parent->conflictGraph)
 		{
 			if ((e.first / num_of_agents == node->agent_id || e.first % num_of_agents == node->agent_id) && e.second > maxWeight)

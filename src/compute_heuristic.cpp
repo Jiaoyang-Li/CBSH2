@@ -1,14 +1,11 @@
 #include <boost/heap/fibonacci_heap.hpp>
 #include "compute_heuristic.h"
-#include <google/dense_hash_map>
 #include <iostream>
 #include "LLNode.h"
+#include "common.h"
 
-
-using google::dense_hash_map;      // namespace where class lives by default
 using std::cout;
 using std::endl;
-using boost::heap::fibonacci_heap;
 
 
 ComputeHeuristic::ComputeHeuristic(int start_location, int goal_location, const bool* my_map, int map_rows, int map_cols,
@@ -39,13 +36,12 @@ void ComputeHeuristic::getHVals(vector<int>& res)
 	// generate hash_map (key is a node pointer, data is a node handler,
 	//                    NodeHasher is the hash function to be used,
 	//                    eqnode is used to break ties when hash values are equal)
-	dense_hash_map<LLNode*, fibonacci_heap<LLNode*, boost::heap::compare<LLNode::compare_node> >::handle_type, LLNode::NodeHasher, LLNode::eqnode> nodes;
-	nodes.set_empty_key(NULL);
-	dense_hash_map<LLNode*, fibonacci_heap<LLNode*, boost::heap::compare<LLNode::compare_node> >::handle_type, LLNode::NodeHasher, LLNode::eqnode>::iterator it; // will be used for find()
+	boost::unordered_set<LLNode*, LLNode::NodeHasher, LLNode::eqnode> nodes;
+	boost::unordered_set<LLNode*, LLNode::NodeHasher, LLNode::eqnode>::iterator it; // will be used for find()
 
 	LLNode* root = new LLNode(root_location, 0, 0, NULL, 0);
 	root->open_handle = heap.push(root);  // add root to heap
-	nodes[root] = root->open_handle;       // add root to hash_table (nodes)
+	nodes.insert(root);       // add root to hash_table (nodes)
 	while (!heap.empty()) {
 		LLNode* curr = heap.top();
 		heap.pop();
@@ -61,17 +57,16 @@ void ComputeHeuristic::getHVals(vector<int>& res)
 				if (it == nodes.end()) 
 				{  // add the newly generated node to heap and hash table
 					next->open_handle = heap.push(next);
-					nodes[next] = next->open_handle;
+					nodes.insert(next);
 				}
 				else 
 				{  // update existing node's g_val if needed (only in the heap)
 					delete(next);  // not needed anymore -- we already generated it before
-					LLNode* existing_next = (*it).first;
-					open_handle = (*it).second;
+					LLNode* existing_next = *it;
 					if (existing_next->g_val > next_g_val) 
 					{
 						existing_next->g_val = next_g_val;
-						heap.update(open_handle);
+						heap.update(existing_next->open_handle);
 					}
 				}
 			}
@@ -80,7 +75,7 @@ void ComputeHeuristic::getHVals(vector<int>& res)
 	// iterate over all nodes and populate the distances
 	for (it = nodes.begin(); it != nodes.end(); it++) 
 	{
-		LLNode* s = (*it).first;
+		LLNode* s = *it;
 		res[s->loc] = s->g_val;
 		delete (s);
 	}

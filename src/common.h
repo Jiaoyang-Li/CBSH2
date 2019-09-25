@@ -1,8 +1,16 @@
 #pragma once
 #include <tuple>
+#include <list>
+#include <vector>
+#include <set>
 #include <boost/heap/fibonacci_heap.hpp>
-#include <google/dense_hash_map>
-//#include <unordered_map>
+#include <boost/unordered_set.hpp>
+#include <boost/unordered_map.hpp>
+
+using boost::heap::fibonacci_heap;
+using boost::heap::compare;
+using boost::unordered_map;
+using boost::unordered_set;
 
 //#include <boost/graph/adjacency_list.hpp>
 //typedef boost::adjacency_list_traits<int, int, boost::undirectedS > confilctGraph_t;

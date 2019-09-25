@@ -36,7 +36,7 @@ public:
 	open_handle_t open_handle;
 	focal_handle_t focal_handle;
 
-	// The following is used by googledensehash for generating the hash value of a nodes
+	// The following is used by  for generating the hash value of a nodes
 	// this is needed because otherwise we'll have to define the specilized template inside std namespace
 	struct ICBSNodeHasher 
 	{
@@ -58,7 +58,7 @@ public:
 	// The chosen conflict
 	std::shared_ptr<Conflict> conflict;
 
-	std::unordered_map<int, int> conflictGraph; //<edge index, weight>
+	boost::unordered_map<int, int> conflictGraph; //<edge index, weight>
 	ICBSNode* parent;
 
 	int agent_id;

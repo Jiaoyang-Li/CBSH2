@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <stdlib.h>
 
@@ -17,12 +17,11 @@ public:
 	// define typedefs and handles for heap and hash_map
 	typedef boost::heap::fibonacci_heap< LLNode*, boost::heap::compare<LLNode::compare_node> > heap_open_t;
 	typedef boost::heap::fibonacci_heap< LLNode*, boost::heap::compare<LLNode::secondary_compare_node> > heap_focal_t;
-	typedef google::dense_hash_map<LLNode*, LLNode*, LLNode::NodeHasher, LLNode::eqnode> hashtable_t;
+	typedef boost::unordered_set<LLNode*, LLNode::NodeHasher, LLNode::eqnode> hashtable_t;
+
 	heap_open_t open_list;
 	heap_focal_t focal_list;
 	hashtable_t allNodes_table;
-	LLNode* empty_node;
-	LLNode* deleted_node;
 
 	int start_location;
 	int goal_location;
