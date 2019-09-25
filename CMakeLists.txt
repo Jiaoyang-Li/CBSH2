@@ -9,7 +9,7 @@ SET (CMAKE_LINKER  "/usr/bin/ld")
 
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -g -Wall --std=c++0x")
 
-
+include_directories("inc/*.h")
 file(GLOB SOURCES "*src/*.cpp")
 
 
