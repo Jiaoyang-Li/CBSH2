@@ -22,7 +22,7 @@ enum heuristics_type { NONE, CG, DG, WDG, STRATEGY_COUNT };
 
 typedef std::tuple<int, int, int> Constraint;
 typedef std::tuple<int, int, int, int, int> Conflict;
-typedef vector< vector< bool > > CAT; // conflict avoidance table
+typedef vector< unordered_set<int64_t> > CAT; // conflict avoidance table
 
 struct PathEntry
 {

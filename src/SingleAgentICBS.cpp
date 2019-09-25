@@ -58,22 +58,26 @@ inline bool SingleAgentICBS::isConstrained(int curr_id, int next_id, int next_ti
 
 int SingleAgentICBS::numOfConflictsForStep(int curr_id, int next_id, int next_timestep, const CAT& cat) 
 {
+	if (cat.empty())
+		return 0;
 	int retVal = 0;
 	if (next_timestep >= cat.size()) 
 	{
 		// check vertex constraints (being at an agent's goal when he stays there because he is done planning)
-		if (cat.back().at(next_id) == true)
+		const auto& it = cat.back().find(next_id);
+		if (it != cat.back().end())
 			retVal++;
 		// Note -- there cannot be edge conflicts when other agents are done moving
 	}
 	else 
 	{
 		// check vertex constraints (being in next_id at next_timestep is disallowed)
-		if (cat[next_timestep][next_id] == true)
+		auto& it = cat[next_timestep].find(next_id);
+		if (it != cat[next_timestep].end())
 			retVal++;
 		// check edge constraints (the move from curr_id to next_id at next_timestep-1 is disallowed)
-		// which means that res_table is occupied with another agent for [curr_id,next_timestep] and [next_id,next_timestep-1]
-		if (cat[next_timestep][curr_id] && cat[next_timestep - 1][next_id])
+		it = cat[next_timestep].find((1 + curr_id) * map_size + next_id);
+		if (it != cat[next_timestep].end())
 			retVal++;
 	}
 	return retVal;
@@ -148,9 +152,7 @@ bool SingleAgentICBS::findPath(std::vector<PathEntry> &path, const std::vector <
 				// compute cost to next_id via curr node
 				int next_g_val = curr->g_val + 1;
 				int next_h_val = my_heuristic[next_id];
-				int next_internal_conflicts = 0;
-				if (!cat.empty())  // check if the conflict avoidance table is not empty
-					next_internal_conflicts = curr->num_internal_conf + numOfConflictsForStep(curr->loc, next_id, next_timestep, cat);
+				int next_internal_conflicts = curr->num_internal_conf + numOfConflictsForStep(curr->loc, next_id, next_timestep, cat);
 				
 				// generate (maybe temporary) node
 				LLNode* next = new LLNode(next_id, next_g_val, next_h_val,	curr, next_timestep, next_internal_conflicts, false);

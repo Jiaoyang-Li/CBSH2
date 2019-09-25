@@ -134,7 +134,7 @@ private:
 	int collectConstraints(ICBSNode* curr, int agent_id, std::vector <std::list< std::pair<int, int> > >& cons_vec); // return the minimal length of the path
 	inline void updatePaths(ICBSNode* curr);
 	void updateFocalList();
-	void updateReservationTable(CAT& cat, int exclude_agent, const ICBSNode &node);
+	void updateReservationTable(CAT& res_table, int exclude_agent, const ICBSNode &node);
 	inline void releaseClosedListNodes();
 	inline void releaseOpenListNodes();
 	void copyConflictGraph(ICBSNode& child, const ICBSNode& parent);

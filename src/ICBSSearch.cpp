@@ -117,7 +117,7 @@ int ICBSSearch::computeHeuristics(ICBSNode& curr)
 		{
 			for (int j = i + 1; j < num_of_agents; j++)
 			{
-				boost::unordered_map<int, int>::const_iterator got = curr.conflictGraph.find(i * num_of_agents + j);
+				auto got = curr.conflictGraph.find(i * num_of_agents + j);
 				if (got != curr.conflictGraph.end() && got->second > 0)
 				{
 					CG[i * num_of_agents + j] = got->second;
@@ -764,7 +764,7 @@ void ICBSSearch::removeLowPriorityConflicts(std::list<std::shared_ptr<Conflict>>
 	if(conflicts.empty())
 		return;
 	list<pair<int, int>> got;
-	for (std::list<std::shared_ptr<Conflict>>::iterator p1 = conflicts.begin(); p1 != conflicts.end();)
+	for (auto p1 = conflicts.begin(); p1 != conflicts.end();)
 	{
 		int a1 = get<0>(**p1), a2 = get<1>(**p1);
 		pair<int, int> ag(min(a1, a2), max(a1, a2));
@@ -781,7 +781,7 @@ void ICBSSearch::removeLowPriorityConflicts(std::list<std::shared_ptr<Conflict>>
 		if(found)
 			continue;
 
-		std::list<std::shared_ptr<Conflict>>::iterator p2 = p1;		
+		auto p2 = p1;		
 		p2++;
 		bool keepP1 = true;
 		while (p2 != conflicts.end())
@@ -804,7 +804,7 @@ void ICBSSearch::removeLowPriorityConflicts(std::list<std::shared_ptr<Conflict>>
 					keepP1 = time1 <= time2;
 				}
 				if (keepP1) //delete p2
-					conflicts.erase(p2);
+					p2 = conflicts.erase(p2);
 				else //delete p1
 				{
 					p1 = conflicts.erase(p1);
@@ -981,19 +981,28 @@ void ICBSSearch::updateFocalList()
 	}
 }
 
-void ICBSSearch::updateReservationTable(CAT& cat, int exclude_agent, const ICBSNode &node) {
+void ICBSSearch::updateReservationTable(CAT& cat, int exclude_agent, const ICBSNode &node) 
+{
 	for (int ag = 0; ag < num_of_agents; ag++) 
 	{
 		if (ag != exclude_agent && paths[ag] != NULL) 
 		{
 			for (size_t timestep = 0; timestep < node.makespan + 1; timestep++) 
 			{
-				int id;
 				if (timestep >= paths[ag]->size())
-					id = paths[ag]->at(paths[ag]->size() - 1).location;
+				{
+					cat[timestep].insert(paths[ag]->back().location);
+				}
 				else// otherwise, return its location for that timestep
-					id = paths[ag]->at(timestep).location;
-				cat[timestep][id] = true;
+				{
+					int id = paths[ag]->at(timestep).location;
+					cat[timestep].insert(id);
+					if (timestep > 0 && paths[ag]->at(timestep - 1).location != id)
+					{
+						int prev_id = paths[ag]->at(timestep - 1).location;
+						cat[timestep].insert((1 + id) * ml->cols * ml->rows + prev_id);
+					}
+				}
 			}
 		}
 	}
