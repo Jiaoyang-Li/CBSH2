@@ -8,7 +8,7 @@
  After you installed BOOST and downloaded the source code, go into the directory of the source code and compile the code with CMake: 
 ```
 cmake .
-build
+make
 ```
 
 Then, you are able to run the code:
