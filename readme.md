@@ -13,7 +13,7 @@ make
 
 Then, you are able to run the code:
 ```
-./CBSH2 -m instances/lak503d.map -a instances/lak503d/lak503dmap-100agents-2.agents -o test.csv -t 60 -s 1 -h WDG -r 1
+./CBSH2 -m instances/lak503d.map -a instances/lak503dmap-100agents-2.agents -o test.csv -t 60 -s 1 -h WDG -r 1
 ```
 
 You can find details and explanations for all parameters with:
