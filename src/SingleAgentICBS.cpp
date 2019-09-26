@@ -61,7 +61,7 @@ int SingleAgentICBS::numOfConflictsForStep(int curr_id, int next_id, int next_ti
 	if (cat.empty())
 		return 0;
 	int retVal = 0;
-	if (next_timestep >= cat.size()) 
+	if (next_timestep >= (int)cat.size())
 	{
 		// check vertex constraints (being at an agent's goal when he stays there because he is done planning)
 		const auto& it = cat.back().find(next_id);
@@ -118,7 +118,7 @@ bool SingleAgentICBS::findPath(std::vector<PathEntry> &path, const std::vector <
 	start->focal_handle = focal_list.push(start);
 	start->in_openlist = true;
 	allNodes_table.insert(start);
-	min_f_val = start->getFVal();
+	min_f_val = (int)start->getFVal();
 	int lower_bound = std::max(minLength,  min_f_val);
 
 	//int lastGoalConsTime = extractLastGoalTimestep(goal_location, constraints); // the last timestep of a constraint at the goal

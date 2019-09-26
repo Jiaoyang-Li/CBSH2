@@ -190,7 +190,7 @@ void MDD::clear()
 {
 	if(levels.empty())
 		return;
-	for (int i = 0; i < levels.size(); i++)
+	for (size_t i = 0; i < levels.size(); i++)
 	{
 		for (std::list<MDDNode*>::iterator it = levels[i].begin(); it != levels[i].end(); ++it)
 			delete (*it);
@@ -200,7 +200,7 @@ void MDD::clear()
 
 MDDNode* MDD::find(int location, int level) const
 {
-	if(level < levels.size())
+	if(level < (int)levels.size())
 		for (std::list<MDDNode*>::const_iterator it = levels[level].begin(); it != levels[level].end(); ++it)
 			if((*it)->location == location)
 				return (*it);
@@ -212,7 +212,7 @@ MDD::MDD(const MDD & cpy) // deep copy
 	levels.resize(cpy.levels.size());
 	MDDNode* root = new MDDNode(cpy.levels[0].front()->location, NULL);
 	levels[0].push_back(root);
-	for(int t = 0; t < levels.size() - 1; t++)
+	for(size_t t = 0; t < levels.size() - 1; t++)
 	{
 		for (std::list<MDDNode*>::iterator node = levels[t].begin(); node != levels[t].end(); ++node)
 		{
@@ -248,7 +248,7 @@ SyncMDD::SyncMDD(const MDD & cpy) // deep copy of a MDD
 	levels.resize(cpy.levels.size());
 	SyncMDDNode* root = new SyncMDDNode(cpy.levels[0].front()->location, NULL);
 	levels[0].push_back(root);
-	for (int t = 0; t < levels.size() - 1; t++)
+	for (int t = 0; t < (int)levels.size() - 1; t++)
 	{
 		for (std::list<SyncMDDNode*>::iterator node = levels[t].begin(); node != levels[t].end(); ++node)
 		{
@@ -275,7 +275,7 @@ SyncMDD::SyncMDD(const MDD & cpy) // deep copy of a MDD
 
 SyncMDDNode* SyncMDD::find(int location, int level) const
 {
-	if (level < levels.size())
+	if (level < (int)levels.size())
 		for (std::list<SyncMDDNode*>::const_iterator it = levels[level].begin(); it != levels[level].end(); ++it)
 			if ((*it)->location == location)
 				return (*it);
@@ -304,7 +304,7 @@ void SyncMDD::clear()
 {
 	if (levels.empty())
 		return;
-	for (int i = 0; i < levels.size(); i++)
+	for (size_t i = 0; i < levels.size(); i++)
 	{
 		for (std::list<SyncMDDNode*>::iterator it = levels[i].begin(); it != levels[i].end(); ++it)
 			delete (*it);
@@ -327,7 +327,7 @@ bool SyncMDDs(const MDD &mdd, const MDD& other) // assume mdd.levels <= other.le
 	SyncMDD copy(mdd);
 	if (copy.levels.size() < other.levels.size())
 	{
-		int i = copy.levels.size();
+		size_t i = copy.levels.size();
 		copy.levels.resize(other.levels.size());
 		for (; i < copy.levels.size(); i++)
 		{
@@ -342,7 +342,7 @@ bool SyncMDDs(const MDD &mdd, const MDD& other) // assume mdd.levels <= other.le
 	copy.levels[0].front()->coexistingNodesFromOtherMdds.push_back(other.levels[0].front());
 
 	// what if level.size() = 1?
-	for (int i = 1; i < copy.levels.size(); i++)
+	for (size_t i = 1; i < copy.levels.size(); i++)
 	{
 		for (std::list<SyncMDDNode*>::iterator node = copy.levels[i].begin(); node != copy.levels[i].end();)
 		{

@@ -255,10 +255,10 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 			vector<vector<PathEntry>> initial_paths(2);
 			initial_paths[0] = *paths[a1];
 			initial_paths[1] = *paths[a2];
-			ICBSSearch solver2(ml, engines, cons, initial_paths, 1.0, 0, heuristics_type::CG, true, rectangleReasoning, INT_MAX, std::min(1000, time_limit - runtime), 0);
+			ICBSSearch solver2(ml, engines, cons, initial_paths, 1.0, 0, heuristics_type::CG, true, rectangleReasoning, INT_MAX, std::min(1000.0, time_limit - runtime), 0);
 			solver2.runICBSSearch();
-			if ((rst ==0 && solver2.solution_cost > initial_paths.size() - initial_paths.size() + 2) &&
-				(rst == 1 && solver2.solution_cost == initial_paths.size() - initial_paths.size() + 2))
+			if ((rst ==0 && solver2.solution_cost > (int)(initial_paths.size() - initial_paths.size() + 2)) &&
+				(rst == 1 && solver2.solution_cost == (int)(initial_paths.size() - initial_paths.size() + 2)))
 			{
 				cout << "SyncMDD WRONG" << endl;
 				exit(10);
@@ -273,7 +273,7 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 		vector<vector<PathEntry>> initial_paths(2);
 		initial_paths[0] = *paths[a1];
 		initial_paths[1] = *paths[a2];
-		int cutoffTime = std::min(MAX_RUNTIME4PAIR, time_limit - runtime);
+		double cutoffTime = std::min(MAX_RUNTIME4PAIR * 1.0, time_limit - runtime);
 		int upperbound = initial_paths[0].size() + initial_paths[1].size() + 10;
 		ICBSSearch solver(ml, engines, cons, initial_paths, 1.0, max(rst, 0), heuristics_type::CG, true, rectangleReasoning, upperbound, cutoffTime, scr);
 		solver.max_num_of_mdds = this->max_num_of_mdds;
@@ -305,7 +305,7 @@ bool ICBSSearch::buildDependenceGraph(ICBSNode& node)
 	
 	if (screen == 2)
 	{
-		for (int i = 0; i < constraints.size(); i++)
+		for (size_t i = 0; i < constraints.size(); i++)
 		{
 			if (constraints[i].empty())
 				continue;
@@ -556,9 +556,9 @@ void ICBSSearch::chooseConflict(ICBSNode &node)
 		for (std::shared_ptr<Conflict> conflict: node.cardinalConf)
 		{
 			int weight = 2;
-			if (get<4>(*conflict) >= paths[get<0>(*conflict)]->size())
+			if (get<4>(*conflict) >= (int)paths[get<0>(*conflict)]->size())
 				weight = get<4>(*conflict) - paths[get<0>(*conflict)]->size() + 3;
-			else if (get<4>(*conflict) >= paths[get<1>(*conflict)]->size())
+			else if (get<4>(*conflict) >= (int)paths[get<1>(*conflict)]->size())
 				weight = get<4>(*conflict) - paths[get<1>(*conflict)]->size() + 3;
 			int time;
 			if (get<2>(*conflict) < 0) // rectangle conflict
@@ -631,22 +631,22 @@ void ICBSSearch::classifyConflicts(ICBSNode &parent)
 		parent.unknownConf.pop_front();
 
 		bool cardinal1 = false, cardinal2 = false;
-		if (get<4>(*con) >= paths[get<0>(*con)]->size())
+		if (get<4>(*con) >= (int)paths[get<0>(*con)]->size())
 			cardinal1 = true;
 		else if (!paths[get<0>(*con)]->at(0).single)
 		{
 			MDD* mdd = buildMDD(parent, get<0>(*con));
-			for (int i = 0; i < mdd->levels.size(); i++)
+			for (size_t i = 0; i < mdd->levels.size(); i++)
 				paths[get<0>(*con)]->at(i).single = mdd->levels[i].size() == 1;
 			if (mddTable.empty())
 				delete mdd;
 		}
-		if (get<4>(*con) >= paths[get<1>(*con)]->size())
+		if (get<4>(*con) >= (int)paths[get<1>(*con)]->size())
 			cardinal2 = true;
 		else if (!paths[get<1>(*con)]->at(0).single)
 		{
 			MDD* mdd = buildMDD(parent, get<1>(*con));
-			for (int i = 0; i < mdd->levels.size(); i++)
+			for (size_t i = 0; i < mdd->levels.size(); i++)
 				paths[get<1>(*con)]->at(i).single = mdd->levels[i].size() == 1;
 			if (mddTable.empty())
 				delete mdd;
@@ -673,7 +673,7 @@ void ICBSSearch::classifyConflicts(ICBSNode &parent)
 		}
 		else if (rectangleReasoning // rectangle reasoning using MDDs
 			&& get<3>(*con) < 0 // vertex conflict
-			&& paths[get<0>(*con)]->size() > get<4>(*con) && paths[get<1>(*con)]->size() > get<4>(*con)) // conflict happens before agents reach their goals
+			&& (int)paths[get<0>(*con)]->size() > get<4>(*con) && (int)paths[get<1>(*con)]->size() > get<4>(*con)) // conflict happens before agents reach their goals
 		{
 			//Rectangle reasoning for semi and non cardinal vertex conflicts
 			int a1 = get<0>(*con);
@@ -788,7 +788,7 @@ void ICBSSearch::removeLowPriorityConflicts(std::list<std::shared_ptr<Conflict>>
 		{
 			if ((get<0>(**p2) == a1 && get<1>(**p2) == a2) || (get<1>(**p2) == a1 && get<0>(**p2) == a2))
 			{
-				if (max(get<4>(**p1), get<4>(**p2)) >= min(paths[a1]->size(), paths[a2]->size()))
+				if (max(get<4>(**p1), get<4>(**p2)) >= (int)min(paths[a1]->size(), paths[a2]->size()))
 					keepP1 = get<4>(**p1) <= get<4>(**p2);
 				else
 				{
@@ -947,7 +947,7 @@ void ICBSSearch::printPaths() const
 	{
 		std::cout << "Agent " << i << " (" << paths_found_initially[i].size() - 1 << " -->" <<
 			paths[i]->size() - 1 << "): ";
-		for (int t = 0; t < paths[i]->size(); t++)
+		for (size_t t = 0; t < paths[i]->size(); t++)
 			std::cout << "(" << paths[i]->at(t).location / search_engines[0]->num_col << "," << 
 				paths[i]->at(t).location % search_engines[0]->num_col << ")->";
 		std::cout << std::endl;
@@ -1118,7 +1118,7 @@ bool ICBSSearch::runICBSSearch()
 			solution_found = false;
 			break;
 		}
-		runtime = (std::clock() - start) * 1000.0 / CLOCKS_PER_SEC;
+		runtime = (std::clock() - start) * 1000 / CLOCKS_PER_SEC;
 		if (runtime > time_limit)
 		{  // timeout
 			solution_cost = -1;
@@ -1166,7 +1166,7 @@ bool ICBSSearch::runICBSSearch()
 
 			t1 = std::clock();
 			int h = computeHeuristics(*curr);	
-			int runtime_h = (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
+			double runtime_h = (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
 			runtime_computeh += runtime_h;
 			HL_num_heuristics++;
 
@@ -1309,12 +1309,12 @@ bool ICBSSearch::runICBSSearch()
 
 void ICBSSearch::releaseMDDMemory(int id)
 {
-	if (id < 0 || mddTable.empty() || mddTable[id].size() < max_num_of_mdds)
+	if (id < 0 || mddTable.empty() || (int)mddTable[id].size() < max_num_of_mdds)
 		return;
 	int minLength = INT_MAX;
 	for (auto mdd : mddTable[id])
 	{
-		if (mdd.second->levels.size() < minLength)
+		if ((int)mdd.second->levels.size() < minLength)
 			minLength = mdd.second->levels.size();
 	}
 	for (MDDTable::iterator mdd = mddTable[id].begin(); mdd != mddTable[id].end();)
@@ -1337,7 +1337,7 @@ void ICBSSearch::releaseMDDMemory(int id)
 ICBSSearch::ICBSSearch(const MapLoader* ml, vector<SingleAgentICBS*>& search_engines, const vector<list<Constraint>>& constraints,
 	vector<vector<PathEntry>>& paths_found_initially, double f_w, int initial_h,
 	heuristics_type h_type, bool PC, bool rectangleReasoning, 
-	int cost_upperbound, int time_limit, int screen):
+	int cost_upperbound, double time_limit, int screen):
 	focal_w(f_w), time_limit(time_limit), h_type(h_type), PC(PC), screen(screen), cost_upperbound(cost_upperbound),
 	rectangleReasoning(rectangleReasoning), ml(ml),
 	search_engines(search_engines), initial_constraints(constraints), paths_found_initially(paths_found_initially)
@@ -1385,7 +1385,7 @@ ICBSSearch::ICBSSearch(const MapLoader* ml, vector<SingleAgentICBS*>& search_eng
 
 ICBSSearch::ICBSSearch(const MapLoader& ml, const AgentsLoader& al, double f_w, heuristics_type h_type,
 	bool PC, bool rectangleReasoning,
-	int time_limit, int screen):
+	double time_limit, int screen):
 	focal_w(f_w), time_limit(time_limit), h_type(h_type), PC(PC), screen(screen),
 	rectangleReasoning(rectangleReasoning), ml(&ml),
 	num_of_agents(al.num_of_agents)
