@@ -78,7 +78,7 @@ public:
 
 
 	void clear();
-	void printConflictGraph() const;
+	void printConflictGraph(int num_of_agents) const;
 
 	~ICBSNode(){};
 };

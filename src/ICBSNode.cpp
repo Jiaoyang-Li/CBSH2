@@ -10,10 +10,9 @@ void ICBSNode::clear()
 	conflictGraph.clear();
 }
 
-void ICBSNode::printConflictGraph() const
+void ICBSNode::printConflictGraph(int num_of_agents) const
 {
 	std::cout << "Conflcit graph in Node " << time_generated << " with f=" << g_val << "+" << h_val << std::endl;
-	int num_of_agents = int(std::sqrt(conflictGraph.size()));
 	for (auto e : conflictGraph)
 	{
 		int i = e.first / num_of_agents;

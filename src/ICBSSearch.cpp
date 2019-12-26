@@ -1186,7 +1186,7 @@ bool ICBSSearch::runICBSSearch()
 			curr->f_val = curr->g_val + curr->h_val;
 
 			if(screen == 2)
-				curr->printConflictGraph();
+				curr->printConflictGraph(num_of_agents);
 
 			chooseConflict(*curr);
 
