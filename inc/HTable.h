@@ -17,7 +17,7 @@ struct HTableEntry // look-up table entry
 		{
 			std::set<Constraint> cons1[2], cons2[2];
 			const ICBSNode* curr = h1.n;
-			while (curr->parent != NULL)
+			while (curr->parent != nullptr)
 			{
 				if (curr->agent_id == h1.a1)
 					for (auto con : curr->constraints)
@@ -28,7 +28,7 @@ struct HTableEntry // look-up table entry
 				curr = curr->parent;
 			}
 			curr = h2.n;
-			while (curr->parent != NULL)
+			while (curr->parent != nullptr)
 			{
 				if (curr->agent_id == h1.a1)
 					for (auto con : curr->constraints)
@@ -56,7 +56,7 @@ struct HTableEntry // look-up table entry
 		{
 			ICBSNode* curr = entry.n;
 			size_t cons1_hash = 0, cons2_hash = 0;
-			while (curr->parent != NULL)
+			while (curr->parent != nullptr)
 			{
 				if (curr->agent_id == entry.a1)
 				{

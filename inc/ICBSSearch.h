@@ -22,7 +22,7 @@ public:
 	int max_num_of_mdds = 10000;
 
 	ICBSNode* dummy_start;
-	ICBSNode* goal_node = NULL;
+	ICBSNode* goal_node = nullptr;
 
 	uint64_t HL_num_expanded = 0;
 	uint64_t HL_num_generated = 0;

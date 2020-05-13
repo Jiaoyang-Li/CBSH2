@@ -31,8 +31,8 @@ int main(int argc, char** argv)
 		("rows", po::value<int>()->default_value(0), "number of rows")
 		("cols", po::value<int>()->default_value(0), "number of columns")
 		("obs", po::value<int>()->default_value(0), "number of obstacles")		
-		("PC,p", po::value<bool>()->default_value(true), "conflict prioirtization")
-		("heuristics,h", po::value<std::string>()->default_value("NONE"), "heuristics for the high-level search (NONE, CG,DG, WDG)")
+		("PC,p", po::value<bool>()->default_value(true), "conflict prioritization")
+		("heuristics,h", po::value<std::string>()->default_value("NONE"), "heuristics for the high-level search (NONE, CG, DG, WDG)")
 		("agentNum,k", po::value<int>()->default_value(0), "number of agents")
 		("cutoffTime,t", po::value<int>()->default_value(7200), "cutoff time (seconds)")
 		("MaxMDDs", po::value<int>(), "maximum number of MDDs saved for each pair of agents")
@@ -78,11 +78,11 @@ int main(int argc, char** argv)
 	}
 	ICBSSearch icbs(ml, al, 1.0, h, vm["PC"].as<bool>(), vm["rectangleReasoning"].as<bool>(), 
 		vm["cutoffTime"].as<int>() * 1000, vm["screen"].as<int>());
-	if(vm.count("MaxMDDs"))
+	if (vm.count("MaxMDDs"))
 		icbs.max_num_of_mdds = vm["MaxMDDs"].as<int>();
 	bool res;
 	res = icbs.runICBSSearch();
-	if(vm.count("output"))
+	if (vm.count("output"))
 		icbs.saveResults(vm["output"].as<std::string>(), vm["agents"].as<string>());
 	icbs.clearSearchEngines();
 	return 0;

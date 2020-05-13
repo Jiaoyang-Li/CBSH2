@@ -51,7 +51,7 @@ AgentsLoader::AgentsLoader(string fname, const MapLoader &ml, int agentsNum = 0,
     }
     myfile.close();
   } 
-  else if(agentsNum > 0 && width == 0)//Generate agents randomly
+  else if (agentsNum > 0 && width == 0)  // Generate agents randomly
   {
 	  this->num_of_agents = agentsNum;
 	  vector<bool> starts(ml.rows * ml.cols, false);
@@ -106,7 +106,7 @@ AgentsLoader::AgentsLoader(string fname, const MapLoader &ml, int agentsNum = 0,
 					if (goals[goal])
 						flag = false;
 				}
-				//update goal
+				// update goal
 				this->goal_locations.push_back(make_pair(goal / ml.cols, goal % ml.cols));
 				goals[goal] = true;
 		  }
@@ -117,7 +117,7 @@ AgentsLoader::AgentsLoader(string fname, const MapLoader &ml, int agentsNum = 0,
 	  }
 	  saveToFile(fname);
   }
-  else if (agentsNum > 0 && width > 0)//Generate agents for warehouse scenario
+  else if (agentsNum > 0 && width > 0)  // Generate agents for warehouse scenario
   {
 	  this->num_of_agents = agentsNum;
 	  vector<bool> starts(ml.rows * ml.cols, false);

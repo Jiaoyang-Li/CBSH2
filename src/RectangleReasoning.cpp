@@ -95,7 +95,7 @@ void addModifiedVerticalBarrierConstraint(const MDD* mdd, int y, int Ri_x, int R
 	for (int t2 = Ri_t; t2 <= Rg_t; t2++)
 	{
 		int loc = (Ri_x + (t2 - Ri_t) * sign) * num_col + y;
-		MDDNode* it = NULL;
+		MDDNode* it = nullptr;
 		for (MDDNode* n : mdd->levels[t2])
 		{
 			if (n->location == loc)
@@ -104,7 +104,7 @@ void addModifiedVerticalBarrierConstraint(const MDD* mdd, int y, int Ri_x, int R
 				break;
 			}
 		}
-		if (it == NULL && t1 >= 0) // add constraints [t1, t2)
+		if (it == nullptr && t1 >= 0) // add constraints [t1, t2)
 		{
 			int loc1 = (Ri_x + (t1 - Ri_t) * sign) * num_col + y;
 			int loc2 = (Ri_x + (t2 - 1 - Ri_t) * sign) * num_col + y;
@@ -112,11 +112,11 @@ void addModifiedVerticalBarrierConstraint(const MDD* mdd, int y, int Ri_x, int R
 			t1 = -1;
 			continue;
 		}
-		else if (it != NULL && t1 < 0)
+		else if (it != nullptr && t1 < 0)
 		{
 			t1 = t2;
 		}
-		if (it != NULL && t2 == Rg_t)// add constraints [t1, t2]
+		if (it != nullptr && t2 == Rg_t)  // add constraints [t1, t2]
 		{
 			int loc1 = (Ri_x + (t1 - Ri_t) * sign) * num_col + y;
 			constraints.push_back(std::make_tuple(-1 - loc1, loc, t2)); 
@@ -135,7 +135,7 @@ void addModifiedHorizontalBarrierConstraint(const MDD* mdd, int x,
 	for (int t2 = Ri_t; t2 <= Rg_t; t2++)
 	{
 		int loc = (Ri_y + (t2 - Ri_t) * sign) + x * num_col;
-		MDDNode* it = NULL;
+		MDDNode* it = nullptr;
 		for (MDDNode* n : mdd->levels[t2])
 		{
 			if (n->location == loc)
@@ -144,7 +144,7 @@ void addModifiedHorizontalBarrierConstraint(const MDD* mdd, int x,
 				break;
 			}
 		}
-		if (it == NULL && t1 >= 0) // add constraints [t1, t2)
+		if (it == nullptr && t1 >= 0) // add constraints [t1, t2)
 		{
 			int loc1 = (Ri_y + (t1 - Ri_t) * sign) + x * num_col;
 			int loc2 = (Ri_y + (t2 - 1 - Ri_t) * sign) + x * num_col;
@@ -152,11 +152,11 @@ void addModifiedHorizontalBarrierConstraint(const MDD* mdd, int x,
 			t1 = -1;
 			continue;
 		}
-		else if (it != NULL && t1 < 0)
+		else if (it != nullptr && t1 < 0)
 		{
 			t1 = t2;
 		}
-		if (it != NULL && t2 == Rg_t) // add constraints [t1, t2]
+		if (it != nullptr && t2 == Rg_t) // add constraints [t1, t2]
 		{
 			int loc1 = (Ri_y + (t1 - Ri_t) * sign) + x * num_col;
 			constraints.push_back(std::make_tuple(-1 - loc1, loc, t2));
@@ -328,7 +328,7 @@ bool equalRectangleConflict(const std::tuple<int, int, int, int, int>& c1, const
 // find duplicate rectangle conflicts, used to detect whether a semi-/non-cardinal rectangle conflict is unique
 bool findRectangleConflict(const ICBSNode* curr, const std::tuple<int, int, int, int, int>& conflict)
 {
-	while (curr != NULL)
+	while (curr != nullptr)
 	{
 		if (equalRectangleConflict(conflict, *curr->conflict))
 			return true;
