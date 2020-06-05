@@ -1,6 +1,6 @@
 #include "LLNode.h"
 
-LLNode::LLNode() : loc(0), g_val(0), h_val(0), parent(NULL), timestep(0), num_internal_conf(0), in_openlist(false) {}
+LLNode::LLNode() : loc(0), g_val(0), h_val(0), parent(nullptr), timestep(0), num_internal_conf(0), in_openlist(false) {}
 
 LLNode::LLNode(int loc, int g_val, int h_val, LLNode* parent, int timestep, int num_internal_conf, bool in_openlist) :
 	loc(loc), g_val(g_val), h_val(h_val), parent(parent), timestep(timestep),

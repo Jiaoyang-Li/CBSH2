@@ -39,7 +39,7 @@ void ComputeHeuristic::getHVals(vector<int>& res)
 	boost::unordered_set<LLNode*, LLNode::NodeHasher, LLNode::eqnode> nodes;
 	boost::unordered_set<LLNode*, LLNode::NodeHasher, LLNode::eqnode>::iterator it; // will be used for find()
 
-	LLNode* root = new LLNode(root_location, 0, 0, NULL, 0);
+	LLNode* root = new LLNode(root_location, 0, 0, nullptr, 0);
 	root->open_handle = heap.push(root);  // add root to heap
 	nodes.insert(root);       // add root to hash_table (nodes)
 	while (!heap.empty()) {
@@ -52,7 +52,7 @@ void ComputeHeuristic::getHVals(vector<int>& res)
 			if (validMove(curr->loc, next_loc) && !my_map[next_loc])
 			{  // if that grid is not blocked
 				int next_g_val = curr->g_val + 1;
-				LLNode* next = new LLNode(next_loc, next_g_val, 0, NULL, 0);
+				LLNode* next = new LLNode(next_loc, next_g_val, 0, nullptr, 0);
 				it = nodes.find(next);
 				if (it == nodes.end()) 
 				{  // add the newly generated node to heap and hash table

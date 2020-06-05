@@ -13,7 +13,7 @@ inline void ICBSSearch::updatePaths(ICBSNode* curr)
 		paths[i] = &paths_found_initially[i];
 	vector<bool> updated(num_of_agents, false);  // initialized for false
 
-	while (curr->parent != NULL)
+	while (curr->parent != nullptr)
 	{
 		if (!updated[curr->agent_id])
 		{
@@ -43,7 +43,7 @@ int ICBSSearch::collectConstraints(ICBSNode* curr, int agent_id, std::vector <st
 				constraints.push_back(constraint);
 				if (get<2>(constraint) > max_timestep) // calc constraints' max_timestep
 					max_timestep = get<2>(constraint);
-				if(get<2>(constraint) > minLength && get<0>(constraint) < 0) // this is a path length constraint
+				if (get<2>(constraint) > minLength && get<0>(constraint) < 0) // this is a path length constraint
 					minLength = get<2>(constraint);
 				else if (get<2>(constraint) >= minLength && 
 					get<0>(constraint) == paths[agent_id]->back().location && get<1>(constraint) < 0) // or this is a vertex constraint at the goal location
@@ -149,7 +149,7 @@ int ICBSSearch::computeHeuristics(ICBSNode& curr)
 	else
 	{
 		// Minimum Vertex Cover
-		if (curr.parent == NULL) // root node of CBS tree
+		if (curr.parent == nullptr) // root node of CBS tree
 			rst = minimumVertexCover(CG, -1, num_of_agents, num_of_CGedges);
 		else
 			rst = minimumVertexCover(CG, curr.parent->h_val, num_of_agents, num_of_CGedges);		
@@ -183,7 +183,7 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 	int cost_shortestPath = paths[a1]->size() + paths[a2]->size() - 2;
 	runtime = (std::clock() - start) * 1000.0 / CLOCKS_PER_SEC;
 	int scr = 0;
-	if(screen == 2)
+	if (screen == 2)
 	{
 		scr = 1;
 		std::cout << "Agents " << a1 << " and " << a2 << " in node " << node.time_generated << " : ";
@@ -201,17 +201,17 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 		/*ICBSNode* curr = &node;
 		while (curr != dummy_start)
 		{
-			if (mdd1 == NULL && curr->agent_id == a1)
+			if (mdd1 == nullptr && curr->agent_id == a1)
 			{
-				if (curr->mdd == NULL)
+				if (curr->mdd == nullptr)
 				{
 					buildMDD(*curr, a1);
 				}
 				mdd1 = curr->mdd;
 			}
-			else if (mdd2 == NULL && curr->agent_id == a2)
+			else if (mdd2 == nullptr && curr->agent_id == a2)
 			{
-				if (curr->mdd == NULL)
+				if (curr->mdd == nullptr)
 				{
 					buildMDD(*curr, a2);
 				}
@@ -219,17 +219,17 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 			}
 			curr = curr->parent;
 		}
-		if (mdd1 == NULL)
+		if (mdd1 == nullptr)
 		{
-			if (mdds_initially[a1] == NULL)
+			if (mdds_initially[a1] == nullptr)
 			{
 				buildMDD(*dummy_start, a1);
 			}
 			mdd1 = mdds_initially[a1];
 		}
-		if (mdd2 == NULL)
+		if (mdd2 == nullptr)
 		{
-			if (mdds_initially[a2] == NULL)
+			if (mdds_initially[a2] == nullptr)
 			{
 				buildMDD(*dummy_start, a2);
 			}
@@ -241,8 +241,8 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 			mdd1 = mdd2;
 			mdd2 = temp;
 		}
-		if(!SyncMDDs(*mdd1, *mdd2))
-			rst = 1;
+		if (!SyncMDDs(*mdd1, *mdd2))
+			rst = 1;  // The joint MDD is empty so the cost must increase
 		else 
 			rst = 0;
 		if (screen == 2)
@@ -265,7 +265,7 @@ int ICBSSearch::getEdgeWeight(int a1, int a2, const vector<list<Constraint>> & c
 			}
 		}
 	}
-	if (h_type == heuristics_type::WDG && rst > 0)
+	if (h_type == heuristics_type::WDG && rst > 0)  // Find out by how much the cost will increase
 	{
 		vector<SingleAgentICBS*> engines(2);
 		engines[0] = search_engines[a1];
@@ -296,7 +296,7 @@ bool ICBSSearch::buildDependenceGraph(ICBSNode& node)
 	ICBSNode* curr = &node;
 	while (curr != dummy_start)
 	{
-		for (auto constraint : curr->constraints)
+		for (const auto& constraint : curr->constraints)
 		{
 			constraints[curr->agent_id].push_back(constraint);
 		}
@@ -310,7 +310,7 @@ bool ICBSSearch::buildDependenceGraph(ICBSNode& node)
 			if (constraints[i].empty())
 				continue;
 			std::cout << "Constraints for agent " << i << ":";
-			for (auto constraint: constraints[i])
+			for (const auto& constraint: constraints[i])
 				std::cout << constraint;
 			std::cout <<std::endl;
 		}
@@ -325,13 +325,13 @@ bool ICBSSearch::buildDependenceGraph(ICBSNode& node)
 		{
 			node.conflictGraph[idx] = 1;
 		}
-		else if (node.conflictGraph.find(idx) == node.conflictGraph.end())
+		else if (node.conflictGraph.find(idx) == node.conflictGraph.end())  // Not already in the map
 		{
 			time_t t = std::clock();
 			bool hit;
 			int w = getEdgeWeight(a1, a2, constraints, node, true, hit);
 			cardinal_pair_runtime += (std::clock() - t) * 1000.0 / CLOCKS_PER_SEC;
-			if(!hit)
+			if (!hit)
 				cardinal_pair_num ++;
 			if (w < 0) // no solution
 				return false;
@@ -411,7 +411,7 @@ void ICBSSearch::copyConflicts(const std::list<std::shared_ptr<Conflict>>& confl
 
 void ICBSSearch::findConflicts(ICBSNode& curr)
 {
-	if (curr.parent != NULL)
+	if (curr.parent != nullptr)
 	{
 		// Copy from parent
 		copyConflicts(curr.parent->rectSemiConf, curr.rectSemiConf, curr.agent_id);
@@ -425,7 +425,7 @@ void ICBSSearch::findConflicts(ICBSNode& curr)
 		int a1 = curr.agent_id;
 		for (int a2 = 0; a2 < num_of_agents; a2++)
 		{
-			if(a1 == a2)
+			if (a1 == a2)
 				continue;
 			else if (search_engines[a1]->num_of_conf == 0) // New path does not have conflicts with others before it reaches its goal
 			{
@@ -519,7 +519,7 @@ void ICBSSearch::findConflicts(ICBSNode& curr)
 
 MDD * ICBSSearch::buildMDD(ICBSNode& node, int id)
 {
-	if(!mddTable.empty())
+	if (!mddTable.empty())
 	{
 		ConstraintsHasher c(id, &node);
 		MDDTable::const_iterator got = mddTable[c.a].find(c);
@@ -606,7 +606,7 @@ void ICBSSearch::chooseConflict(ICBSNode &node)
 			}
 		}
 	}
-	else if(!node.nonConf.empty())// Choose the earliest non
+	else if (!node.nonConf.empty())  // Choose the earliest non
 	{
 		node.conflict = node.nonConf.front();
 		for (std::shared_ptr<Conflict> conflict : node.nonConf)
@@ -761,7 +761,7 @@ void ICBSSearch::classifyConflicts(ICBSNode &parent)
 void ICBSSearch::removeLowPriorityConflicts(std::list<std::shared_ptr<Conflict>>& conflicts, 
 	list<pair<int, int>>& highPriorityPairs, const vector<vector<PathEntry>*>& paths, int num_col)
 {
-	if(conflicts.empty())
+	if (conflicts.empty())
 		return;
 	list<pair<int, int>> got;
 	for (auto p1 = conflicts.begin(); p1 != conflicts.end();)
@@ -778,7 +778,7 @@ void ICBSSearch::removeLowPriorityConflicts(std::list<std::shared_ptr<Conflict>>
 				break;
 			}
 		}
-		if(found)
+		if (found)
 			continue;
 
 		auto p2 = p1;		
@@ -985,7 +985,7 @@ void ICBSSearch::updateReservationTable(CAT& cat, int exclude_agent, const ICBSN
 {
 	for (int ag = 0; ag < num_of_agents; ag++) 
 	{
-		if (ag != exclude_agent && paths[ag] != NULL) 
+		if (ag != exclude_agent && paths[ag] != nullptr)
 		{
 			for (size_t timestep = 0; timestep < node.makespan + 1; timestep++) 
 			{
@@ -1010,11 +1010,11 @@ void ICBSSearch::updateReservationTable(CAT& cat, int exclude_agent, const ICBSN
 
 void ICBSSearch::printResults() const
 {
-	if(solution_cost >= 0) // solved
+	if (solution_cost >= 0) // solved
 		cout << "Optimal,";
-	else if(solution_cost == -1) // time_out
+	else if (solution_cost == -1) // time_out
 		cout << "Timeout,";
-	else if(solution_cost == -2) // no solution
+	else if (solution_cost == -2) // no solution
 		cout << "No solutions,";
 	else if (solution_cost == -3) // nodes out
 		cout << "Nodesout,";
@@ -1081,7 +1081,7 @@ void ICBSSearch::printStrategy() const
 	switch (h_type)
 	{
 	case heuristics_type::NONE:
-		if(PC)
+		if (PC)
 			std::cout << "    ICBS: ";
 		else
 			std::cout << "     CBS: ";
@@ -1102,7 +1102,7 @@ void ICBSSearch::printStrategy() const
 
 bool ICBSSearch::runICBSSearch() 
 {
-	if(screen > 0) // 1 or 2
+	if (screen > 0) // 1 or 2
 		printStrategy();
 	// set timer
 	start = std::clock();
@@ -1143,12 +1143,12 @@ bool ICBSSearch::runICBSSearch()
 		else if (h_type == heuristics_type::NONE) // No heuristics
 		{
 			t1 = std::clock();
-			if(PC) // priortize conflicts
+			if (PC) // prioritize conflicts
 				classifyConflicts(*curr);
 			chooseConflict(*curr);
 			runtime_conflictdetection += (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
 		}
-		else if(curr->conflict == NULL) //use h value, and h value has not been computed yet
+		else if (curr->conflict == nullptr) //use h value, and h value has not been computed yet
 		{
 			if (screen == 3)
 			{
@@ -1160,7 +1160,7 @@ bool ICBSSearch::runICBSSearch()
 			}
 
 			t1 = std::clock();
-			if (PC) // priortize conflicts
+			if (PC) // prioritize conflicts
 				classifyConflicts(*curr);
 			runtime_conflictdetection += (std::clock() - t1) * 1000.0 / CLOCKS_PER_SEC;
 
@@ -1185,7 +1185,7 @@ bool ICBSSearch::runICBSSearch()
 			curr->h_val = std::max(h, curr->h_val); // use consistent h values
 			curr->f_val = curr->g_val + curr->h_val;
 
-			if(screen == 2)
+			if (screen == 2)
 				curr->printConflictGraph(num_of_agents);
 
 			chooseConflict(*curr);
@@ -1208,7 +1208,7 @@ bool ICBSSearch::runICBSSearch()
 		HL_num_expanded++;
 
 		curr->time_expanded = HL_num_expanded;
-		if(screen == 3)
+		if (screen == 3)
 			std::cout << "Expand Node " << curr->time_generated << " ( " << curr->f_val << "= " << curr->g_val << " + " <<
 				curr->h_val << " ) on conflict " << *curr->conflict << std::endl;
 		ICBSNode* n1 = new ICBSNode();
@@ -1254,10 +1254,10 @@ bool ICBSSearch::runICBSSearch()
 			goal_node = n1;
 			break;
 		}
-		else if(!Sol1)
+		else if (!Sol1)
 		{
 			delete (n1);
-			n1 = NULL;
+			n1 = nullptr;
 		}
 		paths = copy;
 		Sol2 = generateChild(n2, curr);
@@ -1275,10 +1275,10 @@ bool ICBSSearch::runICBSSearch()
 			goal_node = n2;
 			break;
 		}
-		else if(!Sol2)
+		else if (!Sol2)
 		{
 			delete (n2);
-			n2 = NULL;
+			n2 = nullptr;
 		}
 
 		curr->clear();
@@ -1408,7 +1408,7 @@ ICBSSearch::ICBSSearch(const MapLoader& ml, const AgentsLoader& al, double f_w, 
 	
 	
 	// initialize paths_found_initially
-	paths.resize(num_of_agents, NULL);
+	paths.resize(num_of_agents, nullptr);
 	paths_found_initially.resize(num_of_agents);
 	vector < list< pair<int, int> > > cons_vec;
 	for (int i = 0; i < num_of_agents; i++) 
@@ -1447,7 +1447,7 @@ ICBSSearch::ICBSSearch(const MapLoader& ml, const AgentsLoader& al, double f_w, 
 
 	min_f_val = dummy_start->f_val;
 	focal_list_threshold = min_f_val * focal_w;
-	//if(h_type == heuristics_type::DG || h_type == heuristics_type::PAIR)
+	//if (h_type == heuristics_type::DG || h_type == heuristics_type::PAIR)
 	//	dummy_start->conflictGraph.resize(num_of_agents * num_of_agents, -1);
 	/*if (h_type == heuristics_type::DG && !EPEA4PAIR)
 		mdds_initially.resize(num_of_agents);*/
@@ -1490,7 +1490,7 @@ ICBSSearch::~ICBSSearch()
 	{
 		for (auto mdd : mdds_initially)
 		{
-			if (mdd != NULL)
+			if (mdd != nullptr)
 				delete mdd;
 		}
 	}*/

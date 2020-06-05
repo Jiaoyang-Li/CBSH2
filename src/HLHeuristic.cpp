@@ -89,7 +89,7 @@ int greedyMatching(const std::vector<int>& CG,  int cols)
 		int ep1, ep2;
 		for (int i = 0; i < cols; i++)
 		{
-			if(used[i])
+			if (used[i])
 				continue;
 			for (int j = i + 1; j < cols; j++)
 			{
@@ -190,7 +190,7 @@ int weightedVertexCover(const std::vector<int>& CG, const int N)
 	}
 	int best_so_far = INT_MAX;
 	int rst2 = weightedVertexCover(x, 0, 0, CG, range, best_so_far);
-	if( rst != rst2)
+	if (rst != rst2)
 		std::cout << "ERROR" <<std::endl;*/
 
 	return rst;

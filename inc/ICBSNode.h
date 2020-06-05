@@ -22,7 +22,7 @@ public:
 		{
 			/*if (n1->num_of_collisions == n2->num_of_collisions)
 			{
-				if(rand()%2 == 0)
+				if (rand()%2 == 0)
 					return true;
 				else
 					return false;

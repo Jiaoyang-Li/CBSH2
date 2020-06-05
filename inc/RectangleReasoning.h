@@ -50,5 +50,4 @@ bool equalRectangleConflict(const std::tuple<int, int, int, int, int>& c1, const
 // find duplicate rectangle conflicts, used to detect whether a semi-/non-cardinal rectangle conflict is unique
 bool findRectangleConflict(const ICBSNode* curr, const std::tuple<int, int, int, int, int>& conflict); 
 
-
 int getRectangleTime(const Conflict& conflict, const std::vector<std::vector<PathEntry>*>& paths, int num_col);

@@ -46,7 +46,7 @@ inline bool SingleAgentICBS::isConstrained(int curr_id, int next_id, int next_ti
 	{
 		for (std::list< std::pair<int, int> >::const_iterator it = cons[next_timestep].begin(); it != cons[next_timestep].end(); ++it)
 		{
-			if ((std::get<0>(*it) == next_id && std::get<1>(*it) < 0)//vertex constraint
+			if ((std::get<0>(*it) == next_id && std::get<1>(*it) < 0)  // vertex constraint
 				|| (std::get<0>(*it) == curr_id && std::get<1>(*it) == next_id)) // edge constraint
 				return true;
 		}
@@ -112,7 +112,7 @@ bool SingleAgentICBS::findPath(std::vector<PathEntry> &path, const std::vector <
 	hashtable_t::iterator it;  // will be used for find()
 
 	 // generate start and add it to the OPEN list
-	LLNode* start = new LLNode(start_location, 0, my_heuristic[start_location], NULL, 0, 0, false);
+	LLNode* start = new LLNode(start_location, 0, my_heuristic[start_location], nullptr, 0, 0, false);
 	num_generated++;
 	start->open_handle = open_list.push(start);
 	start->focal_handle = focal_list.push(start);

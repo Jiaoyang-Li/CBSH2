@@ -11,7 +11,7 @@ bool MDD::isConstrained(int curr_id, int next_id, int next_timestep, const std::
 	{
 		for (std::list< std::pair<int, int> >::const_iterator it = cons[next_timestep].begin(); it != cons[next_timestep].end(); ++it)
 		{
-			if ((std::get<0>(*it) == next_id && std::get<1>(*it) < 0)//vertex constraint
+			if ((std::get<0>(*it) == next_id && std::get<1>(*it) < 0)  // vertex constraint
 				|| (std::get<0>(*it) == curr_id && std::get<1>(*it) == next_id)) // edge constraint
 				return true;
 		}
@@ -21,7 +21,7 @@ bool MDD::isConstrained(int curr_id, int next_id, int next_timestep, const std::
 
 bool MDD::buildMDD(const std::vector <std::list< std::pair<int, int> > >& constraints, int numOfLevels, const SingleAgentICBS & solver)
 {
-	MDDNode* root = new MDDNode(solver.start_location, NULL); // Root
+	MDDNode* root = new MDDNode(solver.start_location, nullptr); // Root
 	std::queue<MDDNode*> open;
 	std::list<MDDNode*> closed;
 	open.push(root);
@@ -35,7 +35,7 @@ bool MDD::buildMDD(const std::vector <std::list< std::pair<int, int> > >& constr
 		if (node->level == numOfLevels - 1)
 		{
 			levels[numOfLevels - 1].push_back(node);
-			if(!open.empty())
+			if (!open.empty())
 			{
 				std::cerr << "Failed to build MDD!" << std::endl;
 				exit(1);
@@ -96,7 +96,7 @@ bool MDD::buildMDD(const std::vector <std::list< std::pair<int, int> > >& constr
 bool MDD::buildMDD(const std::vector <std::list< std::pair<int, int> > >& constraints, int numOfLevels, 
 	int start_location, const int* moves_offset, const std::vector<int>& my_heuristic, int map_size, int num_col)
 {
-	MDDNode* root = new MDDNode(start_location, NULL); // Root
+	MDDNode* root = new MDDNode(start_location, nullptr); // Root
 	std::queue<MDDNode*> open;
 	std::list<MDDNode*> closed;
 	open.push(root);
@@ -175,7 +175,7 @@ void MDD::deleteNode(MDDNode* node)
 	for (std::list<MDDNode*>::iterator child = node->children.begin(); child != node->children.end(); ++child)
 	{
 		(*child)->parents.remove(node);
-		if((*child)->parents.empty())
+		if ((*child)->parents.empty())
 			deleteNode(*child);
 	}
 	for (std::list<MDDNode*>::iterator parent = node->parents.begin(); parent != node->parents.end(); ++parent)
@@ -188,7 +188,7 @@ void MDD::deleteNode(MDDNode* node)
 
 void MDD::clear()
 {
-	if(levels.empty())
+	if (levels.empty())
 		return;
 	for (size_t i = 0; i < levels.size(); i++)
 	{
@@ -200,17 +200,17 @@ void MDD::clear()
 
 MDDNode* MDD::find(int location, int level) const
 {
-	if(level < (int)levels.size())
+	if (level < (int)levels.size())
 		for (std::list<MDDNode*>::const_iterator it = levels[level].begin(); it != levels[level].end(); ++it)
-			if((*it)->location == location)
+			if ((*it)->location == location)
 				return (*it);
-	return NULL;
+	return nullptr;
 }
 
 MDD::MDD(const MDD & cpy) // deep copy
 {
 	levels.resize(cpy.levels.size());
-	MDDNode* root = new MDDNode(cpy.levels[0].front()->location, NULL);
+	MDDNode* root = new MDDNode(cpy.levels[0].front()->location, nullptr);
 	levels[0].push_back(root);
 	for(size_t t = 0; t < levels.size() - 1; t++)
 	{
@@ -220,7 +220,7 @@ MDD::MDD(const MDD & cpy) // deep copy
 			for (std::list<MDDNode*>::const_iterator cpyChild = cpyNode->children.begin(); cpyChild != cpyNode->children.end(); ++cpyChild)
 			{
 				MDDNode* child = find((*cpyChild)->location, (*cpyChild)->level);
-				if (child == NULL)
+				if (child == nullptr)
 				{
 					child = new MDDNode((*cpyChild)->location, (*node));
 					levels[child->level].push_back(child);
@@ -246,7 +246,7 @@ MDD::~MDD()
 SyncMDD::SyncMDD(const MDD & cpy) // deep copy of a MDD
 {
 	levels.resize(cpy.levels.size());
-	SyncMDDNode* root = new SyncMDDNode(cpy.levels[0].front()->location, NULL);
+	SyncMDDNode* root = new SyncMDDNode(cpy.levels[0].front()->location, nullptr);
 	levels[0].push_back(root);
 	for (int t = 0; t < (int)levels.size() - 1; t++)
 	{
@@ -256,7 +256,7 @@ SyncMDD::SyncMDD(const MDD & cpy) // deep copy of a MDD
 			for (std::list<MDDNode*>::const_iterator cpyChild = cpyNode->children.begin(); cpyChild != cpyNode->children.end(); ++cpyChild)
 			{
 				SyncMDDNode* child = find((*cpyChild)->location, (*cpyChild)->level);
-				if (child == NULL)
+				if (child == nullptr)
 				{
 					child = new SyncMDDNode((*cpyChild)->location, (*node));
 					levels[t + 1].push_back(child);
@@ -279,7 +279,7 @@ SyncMDDNode* SyncMDD::find(int location, int level) const
 		for (std::list<SyncMDDNode*>::const_iterator it = levels[level].begin(); it != levels[level].end(); ++it)
 			if ((*it)->location == location)
 				return (*it);
-	return NULL;
+	return nullptr;
 }
 
 void SyncMDD::deleteNode(SyncMDDNode* node, int level)
@@ -354,7 +354,7 @@ bool SyncMDDs(const MDD &mdd, const MDD& other) // assume mdd.levels <= other.le
 				{
 					for (const MDDNode* childOfParentCoexistingNode : parentCoexistingNode->children)
 					{
-						if((*node)->location == childOfParentCoexistingNode->location) // vertex conflict
+						if ((*node)->location == childOfParentCoexistingNode->location) // vertex conflict
 							continue;
 						else if ((*node)->location == parentCoexistingNode->location && (*parent)->location == childOfParentCoexistingNode->location) // edge conflict
 							continue;

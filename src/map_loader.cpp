@@ -106,7 +106,7 @@ void MapLoader::generateConnectedRandomGrid(int rows, int cols, int obstacles)
 	while (i < obstacles)
 	{
 		int loc = rand() % (this->rows* this->cols);
-		if(addObstacle(loc))
+		if (addObstacle(loc))
 		{
 			printMap();
 			i++;
