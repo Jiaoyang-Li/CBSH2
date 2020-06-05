@@ -4,8 +4,6 @@
  The main goal is to improve heuristics for Conflict-Based Search by reasoning about pairwise dependencies between agents. 
  The code also contains the rectangle-symmetry reasoning from [2].
  
- The code is tested on both Ubuntu and Windows.
- 
  The code requires the external library BOOST (https://www.boost.org/). After you installed BOOST and downloaded the source code, go into the directory of the source code and compile the code with CMake: 
 ```
 cmake .
