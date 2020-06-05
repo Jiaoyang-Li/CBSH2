@@ -1,11 +1,12 @@
 # CBSH2
- Improved Heuristics for Multi-Agent Path Finding with Conflict-Based Search.
+ Improved Heuristics for Multi-Agent Path Finding with Conflict-Based Search [1].
  
- The main goal is to improve heuristics for Conflict-Based Search by reasoning about pairwise dependencies between agents. The code is tested on both Ubuntu and Windows.
+ The main goal is to improve heuristics for Conflict-Based Search by reasoning about pairwise dependencies between agents. 
+ The code also contains the rectangle-symmetry reasoning from [2].
  
- The code requires the external library BOOST (https://www.boost.org/).
+ The code is tested on both Ubuntu and Windows.
  
- After you installed BOOST and downloaded the source code, go into the directory of the source code and compile the code with CMake: 
+ The code requires the external library BOOST (https://www.boost.org/). After you installed BOOST and downloaded the source code, go into the directory of the source code and compile the code with CMake: 
 ```
 cmake .
 make
@@ -25,6 +26,6 @@ You can find details and explanations for all parameters with:
  CBSH2 is released under USC – Research License. See license.md for further details.
  
 ## References
- Jiaoyang Li, Eli Boyarski, Ariel Felner, Hang Ma and Sven Koenig. Improved Heuristics for Multi-Agent Path Finding with Conflict-Based Search. In Proceedings of the International Joint Conference on Artificial Intelligence (IJCAI), (in print), 2019.
- 
- Jiaoyang Li, Eli Boyarski, Ariel Felner, Hang Ma and Sven Koenig. Improved Heuristics for Multi-Agent Path Finding with Conflict-Based Search \[Extended Abstract\]. In Proceedings of the Symposium on Combinatorial Search (SoCS), pages 182-183, 2019.
+[1] Jiaoyang Li, Eli Boyarski, Ariel Felner, Hang Ma and Sven Koenig. Improved Heuristics for Multi-Agent Path Finding with Conflict-Based Search. In Proceedings of the International Joint Conference on Artificial Intelligence (IJCAI), pages 442-449, 2019.
+
+[2] Jiaoyang Li, Daniel Harabor, Peter Stuckey, Hang Ma and Sven Koenig. Symmetry-Breaking Constraints for Grid-Based Multi-Agent Path Finding. In Proceedings of the AAAI Conference on Artificial Intelligence (AAAI), pages 6087-6095, 2019.
