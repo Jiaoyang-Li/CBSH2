@@ -37,7 +37,7 @@ int SingleAgentICBS::extractLastGoalTimestep(int goal_location, const std::vecto
 
 // input: curr_id (location at time next_timestep-1) ; next_id (location at time next_timestep); next_timestep
 //        cons[timestep] is a list of <loc1,loc2> of (vertex/edge) constraints for that timestep.
-inline bool SingleAgentICBS::isConstrained(int curr_id, int next_id, int next_timestep, const std::vector< std::list< std::pair<int, int> > >& cons)  const
+bool SingleAgentICBS::isConstrained(int curr_id, int next_id, int next_timestep, const std::vector< std::list< std::pair<int, int> > >& cons)  const
 {
 	if (cons.empty())
 		return false;

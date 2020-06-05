@@ -45,7 +45,7 @@ public:
 
 	//Checks if a vaild path found (wrt my_map and constraints)
 	//Note -- constraint[timestep] is a list of pairs. Each pair is a disallowed <loc1,loc2> (loc2=-1 for vertex constraint).
-	inline bool isConstrained(int curr_id, int next_id, int next_timestep, const std::vector< std::list< std::pair<int, int> > >& cons) const;
+	bool isConstrained(int curr_id, int next_id, int next_timestep, const std::vector< std::list< std::pair<int, int> > >& cons) const;
 
 	// Updates the path datamember
 	void updatePath(const LLNode* goal, std::vector<PathEntry> &path); 

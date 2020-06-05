@@ -120,7 +120,7 @@ struct ConstraintsHasher // Hash a CT node by constraints on one agent
 
 
 
-typedef unordered_map<ConstraintsHasher, MDD*, ConstraintsHasher::Hasher, ConstraintsHasher::EqNode> MDDTable;
+typedef boost::unordered_map<ConstraintsHasher, MDD*, ConstraintsHasher::Hasher, ConstraintsHasher::EqNode> MDDTable;
 
 
 class SyncMDDNode
