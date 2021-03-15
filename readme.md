@@ -1,6 +1,8 @@
 # CBSH2
  Improved Heuristics for Multi-Agent Path Finding with Conflict-Based Search [1].
  
+ A more recent implementation with more CBS improvement techniques can be fonud here: https://github.com/Jiaoyang-Li/CBSH2-RTC
+ 
  The main goal is to improve heuristics for Conflict-Based Search by reasoning about pairwise dependencies between agents. 
  The code also contains the rectangle-symmetry reasoning technique RM from [2].
  
